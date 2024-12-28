@@ -18,7 +18,7 @@ public class User extends AbstractActor {
                 .match(String.class, message -> {
                     System.out.println("User received: " + message);
                 })
-                .match(MessagingServer.SendMessage.class, message -> {
+                .match(ChatServer.SendMessage.class, message -> {
                     System.out.println("[" + message.sender + "]: " + message.message);
                 })
                 .build();

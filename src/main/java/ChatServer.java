@@ -2,19 +2,18 @@ import akka.actor.AbstractActor;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.actor.ActorRef;
-import akka.io.Udp;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.io.Serializable;
 
 
-public class MessagingServer extends AbstractActor {
+public class ChatServer extends AbstractActor {
 
     private Map<String, ActorRef> userActors = new HashMap<>();
 
     static public Props props() {
-        return Props.create(MessagingServer.class, () -> new MessagingServer());
+        return Props.create(ChatServer.class, () -> new ChatServer());
     }
 
     @Override
@@ -44,9 +43,8 @@ public class MessagingServer extends AbstractActor {
 
     public static void main(String[] args) {
         ActorSystem system = ActorSystem.create("ServerSystem");
-        ActorRef serverActor = system.actorOf(MessagingServer.props(), "serverActor");
+        ActorRef serverActor = system.actorOf(ChatServer.props(), "serverActor");
     }
-
 
     public static class LoginUser implements Serializable {
         public final String username;

@@ -25,11 +25,11 @@ public class App {
 
 
         // Send a message to the server actor
-        serverActor.tell(new MessagingServer.LoginUser(username, userActor), userActor);
+        serverActor.tell(new ChatServer.LoginUser(username, userActor), userActor);
         // Log message to confirm client sent the message
         System.out.println("Message sent to server.");
 
-        serverActor.tell(new MessagingServer.SendMessage(username, promptRecipient(), promptMessage()), userActor);
+        serverActor.tell(new ChatServer.SendMessage(username, promptRecipient(), promptMessage()), userActor);
         System.out.println("Message sent to server.");
 
 
