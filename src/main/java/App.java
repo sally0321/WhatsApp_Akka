@@ -3,6 +3,9 @@ import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.Scanner;
 
 
@@ -18,14 +21,10 @@ public class App {
     public static void main(String[] args) {
     // test
 
-
-
-
         // Login user
         username = promptUsername();
         // create user actor
         userActor = system.actorOf(Props.create(User.class, username), username);
-
 
         while (true) {
             menu();
@@ -48,14 +47,8 @@ public class App {
                     System.out.println("Invalid option.");
             }
         }
-
-
-
-
         //system.terminate();
     }
-
-
 
 
     private static String promptUsername() {
@@ -64,11 +57,59 @@ public class App {
     }
 
     private static String promptRecipient() {
-        System.out.println("Enter your recipient:");
-        return scanner.nextLine();
+        ActorSelection serverActor = system.actorSelection("akka://ServerSystem@127.0.0.1:2551/user/serverActor");
+
+        while (true) {
+            showContactList();
+
+            System.out.println("1 - Add contact");
+            System.out.println("Back - Return to main menu");
+            System.out.println("Enter recipient name:");
+
+            String input = scanner.nextLine();
+
+            if (input.equals("1")) {
+                String contact = promptAddContact();
+                serverActor.tell(new ChatServer.AddContact(username, contact), userActor);
+            } else if (input.equalsIgnoreCase("back")) {
+                return input;
+            } else if (!Database.getContacts(username).containsKey(input)) {
+                System.out.println("Please enter a valid contact.");
+            } else {
+                Database.updateMessageStatus(username, input, 0);
+                return input;
+
+            }
+        }
     }
 
-    private static String promptMessage() {
+    private static String promptAddContact() {
+        while (true) {
+            System.out.println("Enter user to add (Enter 0 to cancel):");
+            String input = scanner.nextLine();
+
+            if (input.equals("0")) {
+                if (Database.getContacts(input).isEmpty()) {
+                    System.out.println("Contact list empty, please add a new contact.\n");
+                } else {
+                    break;
+                }
+            } else if (Database.getUsers().contains(input)) {
+                if (Database.getContacts(username).containsKey(input)) {
+                    System.out.println("Contact already exists.\n");
+                } else {
+                    System.out.println("User added to contacts.\n");
+                }
+                break;
+            } else {
+                System.out.println("User does not exist.\n");
+            }
+        }
+        return input;
+    }
+
+    private static String promptMessage(String recipient) {
+        System.out.println(Database.getChatHistory(username, recipient));
         System.out.println("Enter your message:");
         return scanner.nextLine();
     }
@@ -83,30 +124,52 @@ public class App {
         input = scanner.nextLine();
     }
 
+    private static void showContactList() {
+        Map<String, Integer> contacts = (Database.getContacts(username));
+
+        if (contacts.isEmpty()) {
+            System.out.println("No contacts found.");
+            promptAddContact();
+        } else {
+            System.out.println(username + "'s contact list:");
+
+            for (String contact : contacts.keySet()) {
+                System.out.println(contact + " [" + contacts.get(contact) + " new messages]");
+            }
+
+            System.out.println();
+        }
+    }
+
     private static void startChatting(){
         String message;
         String recipient;
 
         // Specify the remote path to the server actor
         ActorSelection serverActor = system.actorSelection("akka://ServerSystem@127.0.0.1:2551/user/serverActor");
-        // Send a message to the server actor
-        serverActor.tell(new ChatServer.ConnectUser(username, userActor), userActor);
 
-        System.out.println("\nEnter recipient name:");
-        recipient = scanner.nextLine();
-
-        System.out.println(Database.getChatHistory(username, recipient));
-
-        System.out.println("Type your message below:");
         while (true) {
-            message = scanner.nextLine();
+            recipient = promptRecipient();
 
-            if (message.equals("back")) {
-                serverActor.tell(new ChatServer.DisconnectUser(username, userActor), userActor);
+            if (recipient.equalsIgnoreCase("back")) {
                 break;
             }
 
-            serverActor.tell(new ChatServer.SendMessage(username, recipient, message), userActor);
+            // Send a message to the server actor
+            serverActor.tell(new ChatServer.ConnectUser(username, userActor), userActor);
+
+            while (true) {
+                message = promptMessage(recipient);
+
+                if (message.equals("back")) {
+                    serverActor.tell(new ChatServer.DisconnectUser(username, userActor), userActor);
+                    break;
+                } else {
+                    serverActor.tell(new ChatServer.SendMessage(username, recipient, message), userActor);
+                }
+
+            }
         }
     }
+
 }

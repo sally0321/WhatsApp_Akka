@@ -4,13 +4,16 @@ import akka.actor.Props;
 import akka.actor.ActorRef;
 
 import javax.xml.crypto.Data;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.io.Serializable;
 
 
 public class ChatServer extends AbstractActor {
-
+    private static final SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    private static Timestamp timestamp;
     private Map<String, ActorRef> userActors = new HashMap<>();
 
     static public Props props() {
@@ -37,17 +40,35 @@ public class ChatServer extends AbstractActor {
                     //getSender().tell(message.username + " log in successfully!", getSelf());
                 })
                 .match(SendMessage.class, message -> {
+                    timestamp = new Timestamp(System.currentTimeMillis());
+                    String time = timeFormat.format(timestamp);
+                    String lastUser = getLastUser(message.sender, message.recipient);
+
+                    if (lastUser.equals(message.sender)) {
+                        message.message = "[" + time + "]\n" + message.message;
+                    } else{
+                        message.message = "\n[" + time + "]\n" + message.message;
+                    }
+
+                    Integer newMessagesCount = Database.getContacts(message.recipient).get(message.sender);
+                    newMessagesCount ++;
+                    Database.updateMessageStatus(message.recipient, message.sender, newMessagesCount);
+
+                    Database.saveMessage(message.sender, message.recipient, message.message);
+
                     if (userActors.containsKey(message.recipient)){
+                        newMessagesCount = 0;
                         ActorRef recipientActor = userActors.get(message.recipient);
-                        recipientActor.tell(new SendMessage(message.sender, message.recipient, message.message), getSelf());
+                        recipientActor.tell(Database.getChatHistory(message.sender, message.recipient), getSelf());
+                        Database.updateMessageStatus(message.recipient, message.sender, newMessagesCount);
                     }
                     else {
-                        System.out.println("User not online");
+                        System.out.println("Recipient not online");
                     }
-                    Database.saveMessage(message.sender, message.recipient, message.message);
                 })
                 .match(AddContact.class, message -> {
-
+                    System.out.println("Contact added");
+                    Database.saveContact(message.username, message.contact);
                 })
                 .build();
     }
@@ -55,6 +76,20 @@ public class ChatServer extends AbstractActor {
     public static void main(String[] args) {
         ActorSystem system = ActorSystem.create("ServerSystem");
         ActorRef serverActor = system.actorOf(ChatServer.props(), "serverActor");
+    }
+
+    // Get the user who sent last message
+    public static String getLastUser(String sender, String recipient){
+        String chat = Database.getChatHistory(sender, recipient);
+
+        try {
+            String[] lines = chat.split("\n");
+            String[] lastMessage = lines[lines.length - 1].split("[\\[\\]]");
+            return lastMessage[1];
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return sender;
+        }
     }
 
     public static class ConnectUser implements Serializable {
@@ -76,7 +111,7 @@ public class ChatServer extends AbstractActor {
     public static class SendMessage implements Serializable {
         public final String sender;
         public final String recipient;
-        public final String message;
+        public String message;
 
         public SendMessage(String sender, String recipient, String message) {
             this.sender = sender;
@@ -86,13 +121,14 @@ public class ChatServer extends AbstractActor {
     }
 
     public static class AddContact implements Serializable {
+        public final String username;
         public final String contact;
 
-        public AddContact(String contact) {
+        public AddContact(String contact, String username) {
             this.contact = contact;
+            this.username = username;
         }
     }
-
 
 
 

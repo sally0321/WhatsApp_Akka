@@ -4,3 +4,51 @@
 [Kim]: Oi what oi
 [Sally]: oi u la
 [Kim]: back
+[Sally]: hi
+[Sally]: hi
+[Sally]: bye
+[Kim]: hi
+[Kim]: hi
+[Kim]: bye
+[Kim]: hi
+[Kim]: hye
+[Kim]: hi
+[Kim]: bye
+[Kim]: see
+[Kim]: hey
+[Sally]: hi
+[Sally]: hi
+[Sally]: bye
+[Sally]: heheh
+[Sally]: hehe
+[Kim]: 
+[28/12/2024 21:41:27]
+ChatServer$SendMessage@7f9e2c62
+[Kim]: [28/12/2024 21:41:36]
+ChatServer$SendMessage@dd82b28
+[Kim]: [28/12/2024 21:41:38]
+ChatServer$SendMessage@21b3d6dd
+[Kim]: [28/12/2024 21:41:39]
+ChatServer$SendMessage@24455f6a
+[Kim]: [28/12/2024 21:41:40]
+ChatServer$SendMessage@45f4b709
+[Kim]: [28/12/2024 21:41:41]
+ChatServer$SendMessage@9b945f4
+[Kim]: [28/12/2024 21:41:48]
+ChatServer$SendMessage@36837f20
+[Kim]: [28/12/2024 21:41:49]
+ChatServer$SendMessage@3833c895
+[Kim]: [28/12/2024 21:41:49]
+ChatServer$SendMessage@581f7c65
+[Sally]: [28/12/2024 21:43:53]
+hi
+[Sally]: [28/12/2024 21:43:54]
+hy
+[Sally]: [28/12/2024 21:43:57]
+hy
+[Sally]: [28/12/2024 21:43:58]
+hy
+[Kim]: [28/12/2024 21:44:21]
+hi
+[Kim]: [28/12/2024 21:44:23]
+hi
