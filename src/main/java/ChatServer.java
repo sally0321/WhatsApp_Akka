@@ -46,6 +46,9 @@ public class ChatServer extends AbstractActor {
                     }
                     Database.saveMessage(message.sender, message.recipient, message.message);
                 })
+                .match(AddContact.class, message -> {
+
+                })
                 .build();
     }
 
@@ -53,7 +56,6 @@ public class ChatServer extends AbstractActor {
         ActorSystem system = ActorSystem.create("ServerSystem");
         ActorRef serverActor = system.actorOf(ChatServer.props(), "serverActor");
     }
-
 
     public static class ConnectUser implements Serializable {
         public final String username;
@@ -82,6 +84,19 @@ public class ChatServer extends AbstractActor {
             this.message = message;
         }
     }
+
+    public static class AddContact implements Serializable {
+        public final String contact;
+
+        public AddContact(String contact) {
+            this.contact = contact;
+        }
+    }
+
+
+
+
+
 }
 
 

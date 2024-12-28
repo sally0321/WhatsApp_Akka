@@ -16,6 +16,10 @@ public class App {
 
 
     public static void main(String[] args) {
+    // test
+
+
+
 
         // Login user
         username = promptUsername();
@@ -88,20 +92,18 @@ public class App {
         // Send a message to the server actor
         serverActor.tell(new ChatServer.ConnectUser(username, userActor), userActor);
 
-        System.out.println("\nEnter recipient name:");
+        System.out.println("Enter recipient name:");
         recipient = scanner.nextLine();
-
-        System.out.println(Database.getChatHistory(username, recipient));
 
         System.out.println("Type your message below:");
         while (true) {
             message = scanner.nextLine();
+            serverActor.tell(new ChatServer.SendMessage(username, recipient, message), userActor);
 
             if (message.equals("back")) {
                 serverActor.tell(new ChatServer.DisconnectUser(username, userActor), userActor);
                 break;
             }
-            serverActor.tell(new ChatServer.SendMessage(username, recipient, message), userActor);
         }
     }
 }
