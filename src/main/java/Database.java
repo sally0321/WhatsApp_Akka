@@ -6,7 +6,6 @@ import java.util.Map;
 public class Database{
 
     // Constants for directory paths
-    private static final String CMD_DIRECTORY = "../resources/chat_history/";
     private static final String CHAT_DIRECTORY = "../resources/chat_history/";
     private static final String CONTACT_DIRECTORY = "../resources/contact_list/";
     private static final String USER_FILE = "../resources/user_list.txt";
