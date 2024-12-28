@@ -89,8 +89,9 @@ public class ChatServer extends AbstractActor {
         public AddContact(String contact) {
             this.contact = contact;
         }
-
     }
+
+
 
 
 
