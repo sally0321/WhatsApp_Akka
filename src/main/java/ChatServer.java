@@ -3,6 +3,7 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.actor.ActorRef;
 
+import javax.xml.crypto.Data;
 import java.util.HashMap;
 import java.util.Map;
 import java.io.Serializable;
@@ -43,6 +44,7 @@ public class ChatServer extends AbstractActor {
                     else {
                         System.out.println("User not online");
                     }
+                    Database.saveMessage(message.sender, message.recipient, message.message);
                 })
                 .build();
     }
