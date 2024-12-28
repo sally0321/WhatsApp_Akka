@@ -86,8 +86,8 @@ public class ChatServer extends AbstractActor {
                     }
                 })
                 .match(AddContact.class, message -> {
-                    System.out.println("Contact added");
                     Database.saveContact(message.username, message.contact);
+                    getSender().tell("User added to contacts.", getSelf());
                 })
                 .build();
     }

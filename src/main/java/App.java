@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 
 public class App {
@@ -47,7 +48,7 @@ public class App {
                     System.out.println("Invalid option.");
             }
         }
-        //system.terminate();
+        // system.terminate();
     }
 
     private static String promptUsername() {
@@ -68,8 +69,7 @@ public class App {
             String input = scanner.nextLine();
 
             if (input.equals("1")) {
-                String contact = promptAddContact();
-                serverActor.tell(new ChatServer.AddContact(username, contact), userActor);
+                promptAddContact();
             } else if (input.equalsIgnoreCase("back")) {
                 return input;
             } else if (!Database.getContacts(username).containsKey(input)) {
@@ -77,18 +77,19 @@ public class App {
             } else {
                 Database.updateMessageStatus(username, input, 0);
                 return input;
-
             }
         }
     }
 
     private static String promptAddContact() {
+        ActorSelection serverActor = system.actorSelection("akka://ServerSystem@127.0.0.1:2551/user/serverActor");
+
         while (true) {
             System.out.println("Enter user to add (Enter back to cancel):");
             String input = scanner.nextLine();
 
             if (input.equals("back")) {
-                if (Database.getContacts(input).isEmpty()) {
+                if (Database.getContacts(username).isEmpty()) {
                     System.out.println("Contact list empty, please add a new contact.\n");
                 }
                 else {
@@ -96,11 +97,14 @@ public class App {
                 }
             } else if (Database.getUsers().contains(input)) {
                 if (Database.getContacts(username).containsKey(input)) {
-                    System.out.println("Contact already exists.\n");
+                    System.out.println("Contact already exists.");
                 } else {
-                    Database.saveContact(username, input);
-                    System.out.println("User added to contacts.\n");
-                    showContactList();
+                    serverActor.tell(new ChatServer.AddContact(username, input), userActor);
+                    try {
+                        TimeUnit.SECONDS.sleep(1);
+                    } catch (InterruptedException e) {
+                        System.out.println("Something went wrong while adding a contact.");
+                    }
                 }
                 break;
             } else {
@@ -122,16 +126,14 @@ public class App {
     }
 
     private static void showContactList() {
-        Map<String, Integer> contacts = (Database.getContacts(username));
-
-        if (contacts.isEmpty()) {
-            System.out.println("No contacts found.");
+        if (Database.getContacts(username).isEmpty()) {
+            System.out.println("No contacts found. Please add a contact.");
             promptAddContact();
         } else {
-            System.out.println(username + "'s contact list:");
+            System.out.println("\n" + username + "'s contact list:");
 
-            for (String contact : contacts.keySet()) {
-                System.out.println(contact + " [" + contacts.get(contact) + " new messages]");
+            for (String contact : Database.getContacts(username).keySet()) {
+                System.out.println(contact + " [" + Database.getContacts(username).get(contact) + " new messages]");
             }
 
             System.out.println();
