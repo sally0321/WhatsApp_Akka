@@ -7,8 +7,8 @@ public class Database{
 
     // Constants for directory paths
     private static final String CHAT_DIRECTORY = "../resources/chat_history/";
-    private static final String CONTACT_DIRECTORY = "../resources/contact_list/";
-    private static final String USER_FILE = "../resources/user_list.txt";
+    private static final String CONTACT_DIRECTORY = "src/main/resources/contact_list/";
+    private static final String USER_FILE = "src/main/resources/user_list.txt";
     private static final String MVN_DIRECTORY = "src/main/resources/chat_history/";
     private static final String DIRECTORY = MVN_DIRECTORY; // Change as needed
 

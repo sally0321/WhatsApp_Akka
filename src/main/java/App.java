@@ -130,6 +130,7 @@ public class App {
         serverActor.tell(new ChatServer.ConnectUser(username, userActor), userActor);
 
         while (true) {
+            showContactList();
             recipient = promptRecipient();
 
             if (recipient.equalsIgnoreCase("back")) {
@@ -137,8 +138,7 @@ public class App {
             }
 
             while (true) {
-                System.out.println("Enter your message:");
-                message = scanner.nextLine();
+                message = promptMessage();
                 serverActor.tell(new ChatServer.SendMessage(username, recipient, message), userActor);
 
                 if (message.equals("back")) {
@@ -151,13 +151,19 @@ public class App {
 
     private static void showContactList() {
         Map<String, Integer> contacts = (Database.getContacts(username));
-        System.out.println(username + "'s contact list:");
 
-        for (String contact : contacts.keySet()) {
-            System.out.println(contact + " [" + contacts.get(contact) + " new messages]");
+        if (contacts.isEmpty()) {
+            System.out.println("No contacts found.");
+            promptAddContact();
+        } else {
+            System.out.println(username + "'s contact list:");
+
+            for (String contact : contacts.keySet()) {
+                System.out.println(contact + " [" + contacts.get(contact) + " new messages]");
+            }
+
+            System.out.println();
         }
-
-        System.out.println();
     }
 
 
