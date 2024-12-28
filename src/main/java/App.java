@@ -3,8 +3,6 @@ import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -57,9 +55,11 @@ public class App {
     }
 
     private static String promptRecipient() {
-        ActorSelection serverActor = system.actorSelection("akka://ServerSystem@127.0.0.1:2551/user/serverActor");
-
         while (true) {
+            if (Database.getContacts(username).isEmpty()) {
+                System.out.println("You have no contacts. Please add a contact.");
+                promptAddContact();
+            }
             showContactList();
 
             System.out.println("1 - Add contact");
@@ -98,21 +98,19 @@ public class App {
             } else if (Database.getUsers().contains(input)) {
                 if (Database.getContacts(username).containsKey(input)) {
                     System.out.println("Contact already exists.");
+                    break;
                 } else {
-                    serverActor.tell(new ChatServer.AddContact(username, input), userActor);
-                    try {
-                        TimeUnit.SECONDS.sleep(1);
-                    } catch (InterruptedException e) {
-                        System.out.println("Something went wrong while adding a contact.");
-                    }
+                    Database.saveContact(username, input);
+                    System.out.println("User added to contacts.");
+                    break;
                 }
-                break;
             } else {
                 System.out.println("User does not exist.\n");
             }
         }
         return input;
     }
+
 
 
     private static void menu() {
@@ -126,18 +124,16 @@ public class App {
     }
 
     private static void showContactList() {
-        if (Database.getContacts(username).isEmpty()) {
-            System.out.println("No contacts found. Please add a contact.");
-            promptAddContact();
-        } else {
-            System.out.println("\n" + username + "'s contact list:");
+        Map<String, Integer> contacts = Database.getContacts(username);
 
-            for (String contact : Database.getContacts(username).keySet()) {
-                System.out.println(contact + " [" + Database.getContacts(username).get(contact) + " new messages]");
-            }
+        System.out.println("\n" + username + "'s contact list:");
 
-            System.out.println();
+        for (String contact : contacts.keySet()) {
+            System.out.println(contact + " [" + contacts.get(contact) + " new messages]");
         }
+
+        System.out.println();
+
     }
 
     private static void startChatting(){

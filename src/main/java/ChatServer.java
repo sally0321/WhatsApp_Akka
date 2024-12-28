@@ -3,7 +3,6 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.actor.ActorRef;
 
-import javax.xml.crypto.Data;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -66,7 +65,6 @@ public class ChatServer extends AbstractActor {
                     Database.updateMessageStatus(message.recipient, message.sender, newMessagesCount);
 
                     System.out.println("Message sent from " + message.sender + " to " + message.recipient);
-                    System.out.println(chats);
 
                     if (userActors.containsKey(message.sender)) {
                         ActorRef senderActor = userActors.get(message.sender);

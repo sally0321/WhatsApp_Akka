@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Database{
+public class Database {
 
     // Constants for directory paths
     private static final String CHAT_DIRECTORY = "src/main/resources/chat_history/";
@@ -40,7 +40,7 @@ public class Database{
     }
 
     public static void updateMessageStatus(String recipient, String sender, int messageCount){
-        Map<String,Integer> contacts = Database.getContacts(recipient);
+        Map<String,Integer> contacts = getContacts(recipient);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(CONTACT_DIRECTORY + recipient + ".txt"))) {
             contacts.put(sender, messageCount);
             for (String contact : contacts.keySet()) {
