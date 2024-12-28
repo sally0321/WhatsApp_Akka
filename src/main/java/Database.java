@@ -6,19 +6,17 @@ import java.util.Map;
 public class Database{
 
     // Constants for directory paths
-    private static final String CMD_DIRECTORY = "../resources/chat_history/";
-    private static final String CHAT_DIRECTORY = "../resources/chat_history/";
+    private static final String CHAT_DIRECTORY = "src/main/resources/chat_history/";
     private static final String CONTACT_DIRECTORY = "../resources/contact_list/";
     private static final String USER_FILE = "../resources/user_list.txt";
     private static final String MVN_DIRECTORY = "src/main/resources/chat_history/";
-    private static final String DIRECTORY = MVN_DIRECTORY; // Change as needed
 
     // Save the message in a text file named after the users
-    public static void saveMessage(String userA, String userB, String message) {
-        String fileName = getSortedFileName(userA, userB);
+    public static void saveMessage(String sender, String recipient, String message) {
+        String fileName = getSortedFileName(sender, recipient);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(CHAT_DIRECTORY + fileName, true))) {
-            writer.write(message);
+            writer.write("[" + sender + "]: " + message);
             writer.newLine();
         } catch (IOException e) {
             e.printStackTrace();
@@ -56,7 +54,6 @@ public class Database{
 
     // Function to print the content of the chat history file
     public static String getChatHistory(String userA, String userB) {
-        System.out.println(userA + " " + userB);
 
         String fileName = getSortedFileName(userA, userB);
         String chat = "";
@@ -68,7 +65,7 @@ public class Database{
         if (!file.exists()) {
             try{
                 new FileWriter(CHAT_DIRECTORY + fileName, true);
-                return ("New chat created for " + userA + " and " + userB);
+                return ("\nNew chat created for " + userA + " and " + userB +"!\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -78,10 +75,10 @@ public class Database{
             String line = reader.readLine();
             if (line == null) {
                 // If the first line is null, the chat is new
-                return "New chat created for " + userA + " and " + userB;
+                return "\nNew chat created for " + userA + " and " + userB + "!\n";
             }
             else{
-                chat += ("Chat history between " + userA + " and " + userB + ":\n");
+                chat += ("\nChat history between " + userA + " and " + userB + ":\n");
                 while ((line = reader.readLine()) != null) {
                     chat = chat + line + '\n';
                 }
