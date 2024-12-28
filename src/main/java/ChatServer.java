@@ -45,9 +45,9 @@ public class ChatServer extends AbstractActor {
                     String lastUser = getLastUser(message.sender, message.recipient);
 
                     if (lastUser.equals(message.sender)) {
-                        message.message = "[" + time + "]\n" + message.message;
+                        message.message = "[" + time + "]\n[" + message.sender + "]:" + message.message;
                     } else{
-                        message.message = "\n[" + time + "]\n" + message.message;
+                        message.message = "\n[" + time + "]\n[" + message.sender + "]:" + message.message;
                     }
 
                     Integer newMessagesCount = Database.getContacts(message.recipient).get(message.sender);
@@ -60,7 +60,13 @@ public class ChatServer extends AbstractActor {
                         newMessagesCount = 0;
                         ActorRef recipientActor = userActors.get(message.recipient);
                         recipientActor.tell(Database.getChatHistory(message.sender, message.recipient), getSelf());
+                        recipientActor.tell("Enter your message:", getSelf());
+
+                        getSender().tell(Database.getChatHistory(message.sender, message.recipient), getSelf());
+                        getSender().tell("Enter your message:", getSelf());
+
                         Database.updateMessageStatus(message.recipient, message.sender, newMessagesCount);
+
                     }
                     else {
                         System.out.println("Recipient not online");
@@ -129,9 +135,6 @@ public class ChatServer extends AbstractActor {
             this.username = username;
         }
     }
-
-
-
 
 }
 

@@ -16,7 +16,7 @@ public class Database{
         String fileName = getSortedFileName(sender, recipient);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(CHAT_DIRECTORY + fileName, true))) {
-            writer.write("[" + sender + "]: " + message);
+            writer.write(message);
             writer.newLine();
         } catch (IOException e) {
             e.printStackTrace();
