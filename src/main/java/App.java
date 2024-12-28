@@ -18,14 +18,10 @@ public class App {
     public static void main(String[] args) {
     // test
 
-
-
-
         // Login user
         username = promptUsername();
         // create user actor
         userActor = system.actorOf(Props.create(User.class, username), username);
-
 
         while (true) {
             menu();
@@ -48,10 +44,6 @@ public class App {
                     System.out.println("Invalid option.");
             }
         }
-
-
-
-
         //system.terminate();
     }
 
