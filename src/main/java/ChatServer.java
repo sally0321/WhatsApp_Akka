@@ -21,13 +21,19 @@ public class ChatServer extends AbstractActor {
         return receiveBuilder()
                 .match(String.class, message -> {
                     System.out.println("Server received: " + message);
-                    getSender().tell("Acknowledgment: Received your message", getSelf());
+                    //getSender().tell("Acknowledgment: Received your message", getSelf());
                 })
-                .match(LoginUser.class, message -> {
-                    System.out.println("Server login " + message.username);
+                .match(DisconnectUser.class, message -> {
+                    System.out.println("Server disconnect " + message.username);
+                    System.out.println(userActors);
+                    userActors.remove(message.username);
+                    //getSender().tell(message.username + " log in successfully!", getSelf());
+                })
+                .match(ConnectUser.class, message -> {
+                    System.out.println("Server connect " + message.username);
                     System.out.println(userActors);
                     userActors.put(message.username, message.userActor);
-                    getSender().tell(message.username + " log in successfully!", getSelf());
+                    //getSender().tell(message.username + " log in successfully!", getSelf());
                 })
                 .match(SendMessage.class, message -> {
                     if (userActors.containsKey(message.recipient)){
@@ -46,13 +52,20 @@ public class ChatServer extends AbstractActor {
         ActorRef serverActor = system.actorOf(ChatServer.props(), "serverActor");
     }
 
-    public static class LoginUser implements Serializable {
+
+    public static class ConnectUser implements Serializable {
         public final String username;
         public final ActorRef userActor;
 
-        public LoginUser(String username, ActorRef userActor) {
+        public ConnectUser(String username, ActorRef userActor) {
             this.username = username;
             this.userActor = userActor;
+        }
+    }
+
+    public static class DisconnectUser extends ConnectUser {
+        public DisconnectUser(String username, ActorRef userActor) {
+            super(username, userActor);
         }
     }
 
