@@ -16,7 +16,7 @@ public class User extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(String.class, message -> {
-                    System.out.println("User received: " + message);
+                    System.out.println(message);
                 })
                 .match(ChatServer.SendMessage.class, message -> {
                     System.out.println("[" + message.sender + "]: " + message.message);

@@ -15,6 +15,7 @@ public class ChatServer extends AbstractActor {
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
     private static Timestamp timestamp;
     private Map<String, ActorRef> userActors = new HashMap<>();
+    private Map<String, String> chats = new HashMap<>();
 
     static public Props props() {
         return Props.create(ChatServer.class, () -> new ChatServer());
@@ -39,6 +40,14 @@ public class ChatServer extends AbstractActor {
                     userActors.put(message.username, message.userActor);
                     //getSender().tell(message.username + " log in successfully!", getSelf());
                 })
+                .match(SetCommunicationChannel.class, message -> {
+                    System.out.println("Communication channel set between " + message.sender + " and " + message.recipient);
+                    chats.put(message.sender, message.recipient);
+                })
+                .match(CloseCommunicationChannel.class, message -> {
+                    System.out.println("Communication channel closed between " + message.sender + " and " + message.recipient);
+                    chats.remove(message.sender);
+                })
                 .match(SendMessage.class, message -> {
                     timestamp = new Timestamp(System.currentTimeMillis());
                     String time = timeFormat.format(timestamp);
@@ -50,26 +59,30 @@ public class ChatServer extends AbstractActor {
                         message.message = "\n[" + time + "]\n[" + message.sender + "]:" + message.message;
                     }
 
+                    Database.saveMessage(message.sender, message.recipient, message.message);
+
                     Integer newMessagesCount = Database.getContacts(message.recipient).get(message.sender);
                     newMessagesCount ++;
                     Database.updateMessageStatus(message.recipient, message.sender, newMessagesCount);
 
-                    Database.saveMessage(message.sender, message.recipient, message.message);
+                    System.out.println("Message sent from " + message.sender + " to " + message.recipient);
+                    System.out.println(chats);
 
-                    if (userActors.containsKey(message.recipient)){
-                        newMessagesCount = 0;
-                        ActorRef recipientActor = userActors.get(message.recipient);
-                        recipientActor.tell(Database.getChatHistory(message.sender, message.recipient), getSelf());
-                        recipientActor.tell("Enter your message:", getSelf());
+                    if (userActors.containsKey(message.sender)) {
+                        ActorRef senderActor = userActors.get(message.sender);
 
-                        getSender().tell(Database.getChatHistory(message.sender, message.recipient), getSelf());
-                        getSender().tell("Enter your message:", getSelf());
+                        senderActor.tell(Database.getChatHistory(message.sender, message.recipient), getSelf());
+                        senderActor.tell("Enter your message:", getSelf());
 
-                        Database.updateMessageStatus(message.recipient, message.sender, newMessagesCount);
+                        if (userActors.containsKey(message.recipient) && message.sender.equals(chats.get(message.recipient)) && !message.sender.equals(message.recipient)) {
+                            newMessagesCount = 0;
 
-                    }
-                    else {
-                        System.out.println("Recipient not online");
+                            ActorRef recipientActor = userActors.get(message.recipient);
+                            recipientActor.tell(Database.getChatHistory(message.sender, message.recipient), getSelf());
+                            recipientActor.tell("Enter your message:", getSelf());
+
+                            Database.updateMessageStatus(message.recipient, message.sender, newMessagesCount);
+                        }
                     }
                 })
                 .match(AddContact.class, message -> {
@@ -135,6 +148,27 @@ public class ChatServer extends AbstractActor {
             this.username = username;
         }
     }
+
+    public static class SetCommunicationChannel implements Serializable {
+        public final String sender;
+        public final String recipient;
+
+        public SetCommunicationChannel(String sender, String recipient) {
+            this.sender = sender;
+            this.recipient = recipient;
+        }
+    }
+
+    public static class CloseCommunicationChannel implements Serializable {
+        public final String sender;
+        public final String recipient;
+
+        public CloseCommunicationChannel(String sender, String recipient) {
+            this.sender = sender;
+            this.recipient = recipient;
+        }
+    }
+
 
 }
 
