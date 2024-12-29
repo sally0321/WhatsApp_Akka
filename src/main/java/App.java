@@ -3,6 +3,7 @@ import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -12,17 +13,17 @@ public class App {
 
     private static Scanner scanner = new Scanner(System.in);
     private static String username;
+    private static String phoneNum;
     private static String input;
     private static ActorRef userActor;
     private static ActorSystem system = ActorSystem.create("ClientSystem");
 
 
     public static void main(String[] args) {
-
-        // Login user
-        username = promptUsername();
-        // create user actor
+        initialMenu();
         userActor = system.actorOf(Props.create(User.class, username), username);
+        //Database.saveUser(username, phoneNum);
+
 
         while (true) {
             menu();
@@ -48,10 +49,91 @@ public class App {
         }
 
     }
-
+    // Prompt user to enter their username
     private static String promptUsername() {
         System.out.println("Enter your username:");
-        return scanner.nextLine();
+        String username = scanner.nextLine();
+        return username;
+    }
+
+    private static void initialMenu() {
+        while (true) {
+            System.out.println("\nWelcome to WhatsApp!");
+            System.out.println("1 - Register");
+            System.out.println("2 - Login");
+            System.out.println("exit - Quit the app");
+            input = scanner.nextLine();
+
+            if (input.equalsIgnoreCase("exit")) {
+                system.terminate();
+                System.exit(0);
+            }
+
+            switch (input) {
+                case "1": {
+                    register();
+                    return; // Exit the initial menu after registration
+                }
+                case "2": {
+                    login();
+                    return; // Exit the initial menu after successful login
+                     // Retry on failed login
+                }
+                default:
+                    System.out.println("Invalid option. Please try again.");
+            }
+        }
+    }
+
+    // Prompt user to enter their phone number
+    private static String promptPhoneNum() {
+        System.out.println("Enter your phone number:");
+        String phoneNum = scanner.nextLine();
+        return phoneNum;
+    }
+
+    // Register a new user
+    private static void register() {
+
+        System.out.println("Register a new account.");
+        String newUsername = promptUsername();
+        String newPhoneNum = promptPhoneNum();
+
+
+        if (Database.getPhoneNumberIfExists(newPhoneNum) != null) {
+            System.out.println("Phone number already registered. Please try logging in.");
+            return;
+        }
+
+        Database.saveUser(newUsername, newPhoneNum);
+        System.out.println("Registration successful! Welcome, " + newUsername + "!");
+
+        // Set global username and phoneNum
+        username = newUsername;
+        phoneNum = newPhoneNum;
+    }
+
+    // Log in an existing user
+    private static void login() {
+        String newPhoneNum = promptPhoneNum();
+
+        // Find the username associated with the phone number
+        ArrayList<String> usernames = Database.getUsernameList();
+        boolean found = false;
+
+        for (String user : usernames) {
+            if (Database.getPhoneNumber(user).equals(newPhoneNum)) {
+                System.out.println("Welcome back, " + user + "!");
+                found = true;
+                username = user;
+                phoneNum = newPhoneNum;
+                break;
+            }
+        }
+
+        if (!found) {
+            System.out.println("Phone number not found. Please register first.");
+        }
     }
 
     private static String promptRecipient() {
@@ -110,9 +192,7 @@ public class App {
         }
         return input;
     }
-
-
-
+    
     private static void menu() {
         System.out.println();
         System.out.println("Menu:");
