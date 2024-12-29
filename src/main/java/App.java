@@ -173,4 +173,27 @@ public class App {
         serverActor.tell(new ChatServer.DisconnectUser(username, userActor), userActor);
     }
 
+    private static void startCall() {
+        // Create the actor selection inside the method
+        ActorSelection callServerActor = system.actorSelection("akka://CallServerSystem@127.0.0.1:2552/user/callServer");
+        System.out.println("Enter the recipient to call:");
+        String targetUsername = scanner.nextLine();
+
+        // Initiate call
+        callServerActor.tell(new CallServer.InitiateCall(username, targetUsername), userActor);
+        System.out.println("Call initiated. Waiting for " + targetUsername + " to accept or reject the call.");
+
+        while (true) {
+            System.out.println("Press `0` to end the call. ");
+            String input = scanner.nextLine();
+
+            if ("0".equals(input)) {
+                callServerActor.tell(new CallServer.EndCall(username), userActor);
+                System.out.println("You ended the call.");
+                break;
+            } else {
+                System.out.println("Invalid input. Press `0` to end the call. ");
+            }
+        }
+    }
 }
