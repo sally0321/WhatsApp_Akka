@@ -1,3 +1,4 @@
+/*
 import akka.actor.AbstractActor;
 import akka.actor.Props;
 import akka.actor.ActorRef;
@@ -177,3 +178,5 @@ public class AuthenticationServer extends AbstractActor {
         return loggedInUsers.getOrDefault(username, false);
     }
 }
+
+*/
