@@ -118,7 +118,7 @@ public class App {
         System.out.println("Menu:");
         System.out.println("1 - Messaging");
         System.out.println("2 - Profile Settings");
-        System.out.println("3 - VideoCall");
+        System.out.println("3 - Call");
         System.out.println("exit - Quit WhatsApp");
         input = scanner.nextLine();
     }
