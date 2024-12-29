@@ -41,14 +41,26 @@ public class User extends AbstractActor {
             })
             // Notify user about call state changes
             .match(CallServer.CallAccepted.class, msg -> {
-                System.out.println("Call accepted by " + msg.username + ". Starting call...");
+                System.out.println("Call accepted by " + msg.username + ". Press `0` to end the call.");
+                while (true) {
+                    String input = scanner.nextLine();
+                    if ("0".equals(input)) {
+                        getSender().tell(new CallServer.EndCall(username), getSelf());
+                        System.out.println("You ended the call.");
+                        break;
+                    } else {
+                        System.out.println("Invalid input. Press `0` to end the call.");
+                    }
+                }
             })
+
             .match(CallServer.CallRejected.class, msg -> {
                 System.out.println("Call rejected by " + msg.username + ".");
             })
             .match(CallServer.CallEnded.class, msg -> {
                 System.out.println("Call ended by " + msg.username + ".");
             })
+
             .build();
     }
 }
