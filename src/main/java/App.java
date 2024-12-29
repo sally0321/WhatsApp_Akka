@@ -21,6 +21,7 @@ public class App {
 
     public static void main(String[] args) {
         initialMenu();
+
         userActor = system.actorOf(Props.create(User.class, username), username);
         //Database.saveUser(username, phoneNum);
         ActorSelection callServerActor = system.actorSelection("akka://CallServerSystem@127.0.0.1:2552/user/callServer");
@@ -257,10 +258,8 @@ public class App {
     }
 
     private static void startCall() {
-        // Initialize callServerActor if not already done
-        if (callServerActor == null) {
-            callServerActor = system.actorSelection("akka://CallServerSystem@127.0.0.1:2552/user/callServer");
-        }
+        // Create the actor selection inside the method
+        ActorSelection callServerActor = system.actorSelection("akka://CallServerSystem@127.0.0.1:2552/user/callServer");
 
         System.out.println("Enter the recipient to call:");
         String targetUsername = scanner.nextLine();
@@ -270,16 +269,15 @@ public class App {
         System.out.println("Call initiated. Waiting for " + targetUsername + " to accept or reject the call.");
 
         while (true) {
-            System.out.println("Press `0` to end the call. ");
+            System.out.println("Enter your response (Y = Accept, N = Reject, 0 = End Call): ");
             String input = scanner.nextLine();
+
+            // Send all inputs to CallServer as a normal string
             callServerActor.tell(input, userActor);
 
             if ("0".equals(input)) {
-                callServerActor.tell(new CallServer.EndCall(username), userActor);
                 System.out.println("You ended the call.");
-                break;
-            } else {
-                System.out.println("Invalid input. Press `0` to end the call. ");
+                break; // Exit the loop when the user ends the call
             }
         }
     }
