@@ -9,7 +9,9 @@ public class Database {
     private static final String CHAT_DIRECTORY = "src/main/resources/chat_history/";
     private static final String CONTACT_DIRECTORY = "src/main/resources/contact_list/";
     private static final String USER_FILE = "src/main/resources/user_list.txt";
+    private static final String TEST_FILE = "src/main/resources/testUser_list.txt";
     private static final String MVN_DIRECTORY = "src/main/resources/chat_history/";
+
 
     // Save the message in a text file named after the users
     public static void saveMessage(String sender, String recipient, String message) {
@@ -39,8 +41,8 @@ public class Database {
         }
     }
 
-    public static void updateMessageStatus(String recipient, String sender, int messageCount){
-        Map<String,Integer> contacts = getContacts(recipient);
+    public static void updateMessageStatus(String recipient, String sender, int messageCount) {
+        Map<String, Integer> contacts = getContacts(recipient);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(CONTACT_DIRECTORY + recipient + ".txt"))) {
             contacts.put(sender, messageCount);
             for (String contact : contacts.keySet()) {
@@ -63,9 +65,9 @@ public class Database {
 
         // Check if the file exists
         if (!file.exists()) {
-            try{
+            try {
                 new FileWriter(CHAT_DIRECTORY + fileName, true);
-                return ("\nNew chat created for " + userA + " and " + userB +"!\n");
+                return ("\nNew chat created for " + userA + " and " + userB + "!\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -76,8 +78,7 @@ public class Database {
             if (line == null) {
                 // If the first line is null, the chat is new
                 return "\nNew chat created for " + userA + " and " + userB + "!\n";
-            }
-            else{
+            } else {
                 chat += ("\nChat history between " + userA + " and " + userB + ":\n");
                 while ((line = reader.readLine()) != null) {
                     chat = chat + line + '\n';
@@ -91,14 +92,14 @@ public class Database {
 
     public static Map<String, Integer> getContacts(String user) {
         File file = new File(CONTACT_DIRECTORY + user + ".txt");
-        Map<String,Integer> contacts = new HashMap<String,Integer>();
+        Map<String, Integer> contacts = new HashMap<String, Integer>();
 
         // Check if the file exists
         if (!file.exists()) {
-            try{
+            try {
                 new FileWriter(CONTACT_DIRECTORY + user + ".txt", true);
                 return contacts;
-            }catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -113,7 +114,7 @@ public class Database {
 
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (ArrayIndexOutOfBoundsException e){
+        } catch (ArrayIndexOutOfBoundsException e) {
             return contacts;
         }
         return contacts;
@@ -140,4 +141,65 @@ public class Database {
         return userA.compareTo(userB) < 0 ? userA + "_" + userB + ".txt" : userB + "_" + userA + ".txt";
     }
 
+
+    public static void saveUser(String username, String phoneNumber) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(TEST_FILE, true))) {
+            writer.write(username + "," + phoneNumber);  // Save username and phone number
+            writer.newLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Function to get the list of all usernames
+    public static ArrayList<String> getUsernameList() {
+        File file = new File(TEST_FILE);
+        ArrayList<String> usernames = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                usernames.add(line.split(",")[0]);  // Extract only the username (before the comma)
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return usernames;
+    }
+
+    // Function to get the phone number of a given username
+    public static String getPhoneNumber(String username) {
+        File file = new File(TEST_FILE);
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts[0].equals(username)) {
+                    return parts[1];  // Return phone number (after the comma)
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;  // Return null if username is not found
+    }
+
+    public static String getPhoneNumberIfExists(String phoneNum) {
+        File file = new File(TEST_FILE);
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] userData = line.split(","); // Assuming each line is "username,phoneNumber"
+                if (userData.length > 1 && userData[1].equals(phoneNum)) {
+                    return userData[1]; // Return the phone number if it exists
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null; // Return null if the phone number is not found
+    }
 }
