@@ -46,8 +46,10 @@ public class CallServer extends AbstractActor {
                 .match(EndCall.class, msg -> {
                     ActorRef other = activeCalls.remove(getSender());
                     if (other != null) {
-                        other.tell(new CallEnded(msg.username), getSelf());
+                        other.tell(new CallServer.CallEnded(msg.username), getSelf());
                         activeCalls.remove(other);
+                    } else {
+                        System.out.println("The call has ended.");
                     }
                 })
                 .build();
