@@ -8,9 +8,9 @@ import java.util.Map;
 
 public class CallServer extends AbstractActor {
 
-    private final Map<String, ActorRef> clients = new HashMap<>();
+    //private final Map<String, ActorRef> clients = new HashMap<>();
     private final Map<ActorRef, ActorRef> activeCalls = new HashMap<>();
-
+    private Map<String, ActorRef> userActors = new HashMap<>();
     public static Props props() {
         return Props.create(CallServer.class, CallServer::new);
     }
@@ -18,12 +18,26 @@ public class CallServer extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(RegisterClient.class, msg -> {
-                    clients.put(msg.username, getSender());
-                    System.out.println("User registered: " + msg.username);
+                .match(CallServer.DisconnectUser.class, message -> {
+                    System.out.println("Server disconnect " + message.username);
+                    System.out.println(userActors);
+                    userActors.remove(message.username);
+                    //getSender().tell(message.username + " log in successfully!", getSelf());
                 })
+                .match(CallServer.ConnectUser.class, message -> {
+                    System.out.println("Server connect " + message.username);
+                    System.out.println(userActors);
+                    userActors.put(message.username, message.userActor);
+                    //getSender().tell(message.username + " log in successfully!", getSelf());
+                })
+
+                /*
+                .match(RegisterClient.class, msg -> {
+                    userActors.put(msg.username, getSender());
+                    System.out.println("User registered: " + msg.username);
+                })*/
                 .match(InitiateCall.class, msg -> {
-                    ActorRef target = clients.get(msg.targetUsername);
+                    ActorRef target = userActors.get(msg.targetUsername);
                     if (target != null) {
                         target.tell(new IncomingCall(msg.callerUsername), getSelf());
                         activeCalls.put(getSender(), target);
@@ -56,13 +70,30 @@ public class CallServer extends AbstractActor {
     }
 
     // Message classes
+    public static class ConnectUser implements Serializable {
+        public final String username;
+        public final ActorRef userActor;
+
+        public ConnectUser(String username, ActorRef userActor) {
+            this.username = username;
+            this.userActor = userActor;
+        }
+    }
+
+    public static class DisconnectUser extends ChatServer.ConnectUser {
+        public DisconnectUser(String username, ActorRef userActor) {
+            super(username, userActor);
+        }
+    }
+
+    /*
     public static class RegisterClient implements Serializable {
         public final String username;
 
         public RegisterClient(String username) {
             this.username = username;
         }
-    }
+    }*/
 
     public static class InitiateCall implements Serializable {
         public final String callerUsername;

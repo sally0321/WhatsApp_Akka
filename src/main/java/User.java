@@ -57,10 +57,17 @@ public class User extends AbstractActor {
             .match(CallServer.CallRejected.class, msg -> {
                 System.out.println("Call rejected by " + msg.username + ".");
             })
+
             .match(CallServer.CallEnded.class, msg -> {
                 System.out.println("Call ended by " + msg.username + ".");
             })
 
-            .build();
+            .match(CallServer.CallFailed.class, msg -> {
+                System.out.println(msg.message);
+
+            })
+
+
+                .build();
     }
 }
