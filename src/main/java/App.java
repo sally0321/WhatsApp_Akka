@@ -40,7 +40,7 @@ public class App {
                     break;
                 }
                 case "3": // Video calling functionality
-                    //startVideoCall();
+                    startCall();
                     break;
                 default:
                     System.out.println("Invalid option.");
