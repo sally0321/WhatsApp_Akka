@@ -2,7 +2,6 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Scanner;
@@ -41,7 +40,7 @@ public class App {
                     break;
                 }
                 case "3": // Video calling functionality
-                    startCall();
+                    //startVideoCall();
                     break;
                 default:
                     System.out.println("Invalid option.");
@@ -173,6 +172,7 @@ public class App {
         }
         serverActor.tell(new ChatServer.DisconnectUser(username, userActor), userActor);
     }
+
     private static void startCall() {
         // Create the actor selection inside the method
         ActorSelection callServerActor = system.actorSelection("akka://CallServerSystem@127.0.0.1:2552/user/callServer");
