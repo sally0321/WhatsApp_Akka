@@ -1,8 +1,8 @@
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
 import akka.actor.Props;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,20 +50,11 @@ public class CallServer extends AbstractActor {
                         activeCalls.remove(other);
                     }
                 })
-                .match(UnregisterClient.class, msg -> {
-                    clients.remove(msg.username);
-                    System.out.println("User unregistered: " + msg.username);
-                })
                 .build();
     }
 
-    public static void main(String[] args) {
-        ActorSystem system = ActorSystem.create("CallServerSystem");
-        system.actorOf(CallServer.props(), "callServer");
-    }
-
-    // Messages
-    public static class RegisterClient {
+    // Message classes
+    public static class RegisterClient implements Serializable {
         public final String username;
 
         public RegisterClient(String username) {
@@ -71,15 +62,7 @@ public class CallServer extends AbstractActor {
         }
     }
 
-    public static class UnregisterClient {
-        public final String username;
-
-        public UnregisterClient(String username) {
-            this.username = username;
-        }
-    }
-
-    public static class InitiateCall {
+    public static class InitiateCall implements Serializable {
         public final String callerUsername;
         public final String targetUsername;
 
@@ -89,7 +72,7 @@ public class CallServer extends AbstractActor {
         }
     }
 
-    public static class RespondCall {
+    public static class RespondCall implements Serializable {
         public final String responderUsername;
         public final boolean accepted;
 
@@ -99,7 +82,7 @@ public class CallServer extends AbstractActor {
         }
     }
 
-    public static class EndCall {
+    public static class EndCall implements Serializable {
         public final String username;
 
         public EndCall(String username) {
@@ -107,7 +90,7 @@ public class CallServer extends AbstractActor {
         }
     }
 
-    public static class IncomingCall {
+    public static class IncomingCall implements Serializable {
         public final String callerUsername;
 
         public IncomingCall(String callerUsername) {
@@ -115,7 +98,7 @@ public class CallServer extends AbstractActor {
         }
     }
 
-    public static class CallAccepted {
+    public static class CallAccepted implements Serializable {
         public final String username;
 
         public CallAccepted(String username) {
@@ -123,7 +106,7 @@ public class CallServer extends AbstractActor {
         }
     }
 
-    public static class CallRejected {
+    public static class CallRejected implements Serializable {
         public final String username;
 
         public CallRejected(String username) {
@@ -131,7 +114,7 @@ public class CallServer extends AbstractActor {
         }
     }
 
-    public static class CallEnded {
+    public static class CallEnded implements Serializable {
         public final String username;
 
         public CallEnded(String username) {
@@ -139,11 +122,16 @@ public class CallServer extends AbstractActor {
         }
     }
 
-    public static class CallFailed {
+    public static class CallFailed implements Serializable {
         public final String message;
 
         public CallFailed(String message) {
             this.message = message;
         }
+    }
+
+    public static void main(String[] args) {
+        akka.actor.ActorSystem system = akka.actor.ActorSystem.create("CallServerSystem");
+        system.actorOf(CallServer.props(), "callServer");
     }
 }
