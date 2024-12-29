@@ -23,6 +23,9 @@ public class App {
         initialMenu();
         userActor = system.actorOf(Props.create(User.class, username), username);
         //Database.saveUser(username, phoneNum);
+        ActorSelection callServerActor = system.actorSelection("akka://CallServerSystem@127.0.0.1:2552/user/callServer");
+        //callServerActor.tell(new CallServer.RegisterClient(username), userActor);
+        callServerActor.tell(new CallServer.ConnectUser(username, userActor), userActor);
 
 
         while (true) {
@@ -254,11 +257,10 @@ public class App {
     }
 
     private static void startCall() {
-        // Create the actor selection inside the method
-        ActorSelection callServerActor = system.actorSelection("akka://CallServerSystem@127.0.0.1:2552/user/callServer");
-
-        //callServerActor.tell(new CallServer.RegisterClient(username), userActor);
-        callServerActor.tell(new CallServer.ConnectUser(username, userActor), userActor);
+        // Initialize callServerActor if not already done
+        if (callServerActor == null) {
+            callServerActor = system.actorSelection("akka://CallServerSystem@127.0.0.1:2552/user/callServer");
+        }
 
         System.out.println("Enter the recipient to call:");
         String targetUsername = scanner.nextLine();
@@ -267,10 +269,10 @@ public class App {
         callServerActor.tell(new CallServer.InitiateCall(username, targetUsername), userActor);
         System.out.println("Call initiated. Waiting for " + targetUsername + " to accept or reject the call.");
 
-        /*
         while (true) {
             System.out.println("Press `0` to end the call. ");
             String input = scanner.nextLine();
+            callServerActor.tell(input, userActor);
 
             if ("0".equals(input)) {
                 callServerActor.tell(new CallServer.EndCall(username), userActor);
@@ -279,7 +281,7 @@ public class App {
             } else {
                 System.out.println("Invalid input. Press `0` to end the call. ");
             }
-        }*/
+        }
     }
 
     private static void profileSettings() {
