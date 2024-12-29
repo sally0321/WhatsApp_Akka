@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class User extends AbstractActor {
 
-    private final String username;
+    private String username;
     private static final Scanner scanner = new Scanner(System.in);
 
     public User(String username) {
@@ -66,8 +66,22 @@ public class User extends AbstractActor {
                 System.out.println(msg.message);
 
             })
-
-
+                .match(ProfileServer.ViewProfile.class, msg -> {
+                    System.out.println("Profile for " + msg.username + ":");
+                })
+                .match(ProfileServer.UpdateUsername.class, msg -> {
+                    System.out.println("Username updated from " + username + " to " + msg.newUsername);
+                    username = msg.newUsername; // Update local username
+                })
+                .match(ProfileServer.UpdateBio.class, msg -> {
+                    System.out.println("Bio updated for " + msg.username);
+                })
+                .match(ProfileServer.ViewProfileResponse.class, response -> {
+                    System.out.println("Username: " + response.username + ", Bio: " + response.bio);
+                })
+                .match(ProfileServer.ErrorResponse.class, error -> {
+                    System.out.println("Error: " + error.message);
+                })
                 .build();
     }
 }

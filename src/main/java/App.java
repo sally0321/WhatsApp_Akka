@@ -37,7 +37,7 @@ public class App {
                     break;
                 }
                 case "2": {
-                    //profileSettings();
+                    profileSettings();
                     break;
                 }
                 case "3": // Video calling functionality
@@ -281,4 +281,40 @@ public class App {
             }
         }*/
     }
+
+    private static void profileSettings() {
+        ActorSelection profileServer = system.actorSelection("akka://ServerSystem@127.0.0.1:2553/user/profileServer");
+
+        while (true) {
+            System.out.println("1 - View Profile");
+            System.out.println("2 - Update Username");
+            System.out.println("3 - Update Bio");
+            System.out.println("exit - Quit");
+
+            String option = scanner.nextLine();
+            switch (option) {
+                case "1": // View Profile
+                    profileServer.tell(new ProfileServer.ViewProfile(username), ActorRef.noSender());
+                    break;
+                case "2": // Update Username
+                    System.out.println("Enter your new username:");
+                    String newUsername = scanner.nextLine();
+                    profileServer.tell(new ProfileServer.UpdateUsername(username, newUsername), ActorRef.noSender());
+                    username = newUsername; // Update the local reference
+                    break;
+                case "3": // Update Bio
+                    System.out.println("Enter your new bio:");
+                    String newBio = scanner.nextLine();
+                    profileServer.tell(new ProfileServer.UpdateBio(username, newBio), ActorRef.noSender());
+                    break;
+                case "exit": // Exit
+                    system.terminate();
+                    return;
+                default:
+                    System.out.println("Invalid option.");
+            }
+        }
+    }
+
+
 }
