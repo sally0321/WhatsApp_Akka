@@ -1,8 +1,11 @@
 import akka.actor.AbstractActor;
 import akka.actor.Props;
+import java.util.Scanner;
 
 public class User extends AbstractActor {
+
     private final String username;
+    private static final Scanner scanner = new Scanner(System.in);
 
     public User(String username) {
         this.username = username;
@@ -15,12 +18,37 @@ public class User extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(String.class, message -> {
-                    System.out.println(message);
-                })
-                .match(ChatServer.SendMessage.class, message -> {
-                    System.out.println("[" + message.sender + "]: " + message.message);
-                })
-                .build();
+            .match(String.class, message -> {
+                System.out.println(message);
+            })
+            .match(ChatServer.SendMessage.class, message -> {
+                System.out.println("[" + message.sender + "]: " + message.message);
+            })
+            // Handle incoming call
+            .match(CallServer.IncomingCall.class, msg -> {
+                System.out.println(msg.callerUsername + " is calling you.");
+                System.out.println("Y = Accept");
+                System.out.println("N = Reject");
+
+                String response = scanner.nextLine();
+                if ("Y".equalsIgnoreCase(response)) {
+                    getSender().tell(new CallServer.RespondCall(username, true), getSelf());
+                    System.out.println("You accepted the call from " + msg.callerUsername + ".");
+                } else {
+                    getSender().tell(new CallServer.RespondCall(username, false), getSelf());
+                    System.out.println("You rejected the call from " + msg.callerUsername + ".");
+                }
+            })
+            // Notify user about call state changes
+            .match(CallServer.CallAccepted.class, msg -> {
+                System.out.println("Call accepted by " + msg.username + ". Starting call...");
+            })
+            .match(CallServer.CallRejected.class, msg -> {
+                System.out.println("Call rejected by " + msg.username + ".");
+            })
+            .match(CallServer.CallEnded.class, msg -> {
+                System.out.println("Call ended by " + msg.username + ".");
+            })
+            .build();
     }
 }
