@@ -18,7 +18,6 @@ public class App {
 
 
     public static void main(String[] args) {
-    // test
 
         // Login user
         username = promptUsername();
@@ -28,6 +27,7 @@ public class App {
         while (true) {
             menu();
             if (input.equals("exit")) {
+                system.terminate();
                 break;
             }
             switch (input) {
@@ -46,7 +46,7 @@ public class App {
                     System.out.println("Invalid option.");
             }
         }
-        // system.terminate();
+
     }
 
     private static String promptUsername() {

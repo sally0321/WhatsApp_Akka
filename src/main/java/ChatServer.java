@@ -2,7 +2,7 @@ import akka.actor.AbstractActor;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.actor.ActorRef;
-
+import java.util.Scanner;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -15,6 +15,7 @@ public class ChatServer extends AbstractActor {
     private static Timestamp timestamp;
     private Map<String, ActorRef> userActors = new HashMap<>();
     private Map<String, String> chats = new HashMap<>();
+    private static Scanner scanner = new Scanner(System.in);
 
     static public Props props() {
         return Props.create(ChatServer.class, () -> new ChatServer());
@@ -93,6 +94,12 @@ public class ChatServer extends AbstractActor {
     public static void main(String[] args) {
         ActorSystem system = ActorSystem.create("ServerSystem");
         ActorRef serverActor = system.actorOf(ChatServer.props(), "serverActor");
+        while (true){
+            if (scanner.nextLine().equalsIgnoreCase("exit")){
+                system.terminate();
+                break;
+            }
+        }
     }
 
     // Get the user who sent last message
