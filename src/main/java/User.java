@@ -24,48 +24,62 @@ public class User extends AbstractActor {
             .match(ChatServer.SendMessage.class, message -> {
                 System.out.println("[" + message.sender + "]: " + message.message);
             })
-            // Handle incoming call
-            .match(CallServer.IncomingCall.class, msg -> {
-                System.out.println(msg.callerUsername + " is calling you.");
-                System.out.println("Y = Accept");
-                System.out.println("N = Reject");
+                // Handle incoming call
+                .match(CallServer.IncomingCall.class, msg -> {
+                    System.out.println(msg.callerUsername + " is calling you.");
+                    System.out.println("Y = Accept");
+                    System.out.println("N = Reject");
 
-                String response = scanner.nextLine();
-                if ("Y".equalsIgnoreCase(response)) {
-                    getSender().tell(new CallServer.RespondCall(username, true), getSelf());
-                    System.out.println("You accepted the call from " + msg.callerUsername + ".");
-                } else {
-                    getSender().tell(new CallServer.RespondCall(username, false), getSelf());
-                    System.out.println("You rejected the call from " + msg.callerUsername + ".");
-                }
-            })
-            // Notify user about call state changes
-            .match(CallServer.CallAccepted.class, msg -> {
-                System.out.println("Call accepted by " + msg.username + ". Press `0` to end the call.");
-                while (true) {
-                    String input = scanner.nextLine();
-                    if ("0".equals(input)) {
-                        getSender().tell(new CallServer.EndCall(username), getSelf());
-                        System.out.println("You ended the call.");
-                        break;
+                    String response = scanner.nextLine();
+                    if ("Y".equalsIgnoreCase(response)) {
+                        getSender().tell(new CallServer.RespondCall(username, true), getSelf());
+                        System.out.println("You accepted the call from " + msg.callerUsername + ".");
+                        // Simulate ongoing call
+                        handleOngoingCall();
+                    } else if ("N".equalsIgnoreCase(response)) {
+                        getSender().tell(new CallServer.RespondCall(username, false), getSelf());
+                        System.out.println("You rejected the call from " + msg.callerUsername + ".");
                     } else {
-                        System.out.println("Invalid input. Press `0` to end the call.");
+                        System.out.println("Invalid option. Returning to the menu...");
                     }
-                }
-            })
+                })
+                // Notify user about call acceptance
+                .match(CallServer.CallAccepted.class, msg -> {
+                    System.out.println("Call accepted by " + msg.username + ". Press `0` to end the call.");
+                    handleOngoingCall();
+                })
+                // Notify user about call rejection
+                .match(CallServer.CallRejected.class, msg -> {
+                    System.out.println("Call rejected by " + msg.username + ".");
+                    System.out.println("Returning to the main menu...");
+                })
+                // Notify user about call ending
+                .match(CallServer.CallEnded.class, msg -> {
+                    System.out.println("Call ended by " + msg.username + ".");
+                    System.out.println("Returning to the main menu...");
+                })
+                // Handle call failure
+                .match(CallServer.CallFailed.class, msg -> {
+                    System.out.println(msg.message);
+                    System.out.println("Returning to the main menu...");
+                })
+                .build();
+    }
 
-            .match(CallServer.CallRejected.class, msg -> {
-                System.out.println("Call rejected by " + msg.username + ".");
-            })
-
-            .match(CallServer.CallEnded.class, msg -> {
-                System.out.println("Call ended by " + msg.username + ".");
-            })
-
-            .match(CallServer.CallFailed.class, msg -> {
-                System.out.println(msg.message);
-
-            })
+    private void handleOngoingCall() {
+        while (true) {
+            System.out.println("Press `0` to end the call.");
+            String input = scanner.nextLine();
+            if ("0".equals(input)) {
+                getSender().tell(new CallServer.EndCall(username), getSelf());
+                System.out.println("You ended the call.");
+                break;
+            } else {
+                System.out.println("Invalid input. Press `0` to end the call.");
+            }
+        }
+    }
+}
                 .match(ProfileServer.ViewProfile.class, msg -> {
                     System.out.println("Profile for " + msg.username + ":");
                 })
