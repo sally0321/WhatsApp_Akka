@@ -23,6 +23,7 @@ public class ProfileServer extends AbstractActor {
                     System.out.println("Display profile for " + message.username);
                     getSender().tell("Username: " + message.username + "\nBio: " + bio, getSelf());
                 })
+
                 .match(UpdateBio.class, message -> {
                     profiles.put(message.username, message.bio);
                     System.out.println("Bio updated for " + message.username + " to " + message.bio);
@@ -40,7 +41,7 @@ public class ProfileServer extends AbstractActor {
             this.bio = bio;
         }
     }
-    
+
     public static class UpdateBio implements Serializable {
         public final String username;
         public final String bio;
