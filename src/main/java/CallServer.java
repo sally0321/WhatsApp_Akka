@@ -29,6 +29,7 @@ public class CallServer extends AbstractActor {
                     userActors.remove(message.username);
                 })
                 // Handle initiating a call
+                /*
                 .match(InitiateCall.class, msg -> {
                     ActorRef target = userActors.get(msg.targetUsername);
                     if (target != null) {
@@ -38,34 +39,72 @@ public class CallServer extends AbstractActor {
                     } else {
                         getSender().tell(new CallFailed(msg.targetUsername + " is not online."), getSelf());
                     }
-                })
+                })*/
                 // Handle string-based user inputs
                 .match(String.class, input -> {
-                    ActorRef caller = activeCalls.get(getSender());
-                    if ("Y".equalsIgnoreCase(input)) {
-                        // Accept the call
-                        if (caller != null) {
-                            caller.tell(new CallAccepted(getSender().path().name()), getSelf());
-                            System.out.println("Call accepted by " + getSender().path().name());
+                    ActorRef caller1 = getSender();
+                    ActorRef callee1 = activeCalls.get(getSender());
+
+                    ActorRef callee2 = getSender();
+                    ActorRef caller2 = null;
+
+                    for (Map.Entry<ActorRef, ActorRef> entry : activeCalls.entrySet()) {
+                        if (entry.getValue().equals(callee2)) { // Reverse lookup
+                            caller2 = entry.getKey();
+                            break; // Stop searching once the match is found
                         }
-                    } else if ("N".equalsIgnoreCase(input)) {
+                    }
+
+
+                    //ActorRef callee = activeCalls.get(getSender());
+                    if (input.equalsIgnoreCase("Y")) {
+                        // Accept the call
+                        if (caller2 != null) {
+                            caller2.tell(new CallAccepted(callee2.path().name()), getSelf());
+                            callee2.tell("You accepted the call from " + caller2.path().name() + ". Press '0' to end the call.", getSelf());
+                            System.out.println("Call accepted by " + callee2.path().name());
+                        }
+                    } else if (input.equalsIgnoreCase("N")) {
                         // Reject the call
-                        if (caller != null) {
-                            caller.tell(new CallRejected(getSender().path().name()), getSelf());
-                            activeCalls.remove(getSender());
-                            System.out.println("Call rejected by " + getSender().path().name());
+                        if (caller2 != null) {
+                            caller2.tell(new CallRejected(callee2.path().name()), getSelf());
+                            callee2.tell("You rejected the call from " + caller2.path().name() + ".\n\nStart a call by entering recipient name. \nBack - return to main menu", getSelf());
+                            activeCalls.remove(caller2);
+                            System.out.println("Call rejected by " + callee2.path().name());
                         }
                     } else if ("0".equals(input)) {
                         // End the call
-                        if (caller != null) {
-                            caller.tell(new CallEnded(getSender().path().name()), getSelf());
-                            activeCalls.remove(getSender());
-                            System.out.println("Call ended by " + getSender().path().name());
+                        if (caller2 != null) {
+                            caller2.tell(new CallEnded(callee2.path().name()), getSelf());
+                            activeCalls.remove(caller2);
+                            System.out.println("Call ended by " + callee2.path().name());
+                            callee2.tell("You ended the call.\n\nStart a call by entering recipient name. \nBack - return to main menu", getSelf());
+                        } else if (callee1 != null) {
+                            callee1.tell(new CallEnded(caller1.path().name()), getSelf());
+                            activeCalls.remove(caller1);
+                            System.out.println("Call ended by " + caller1.path().name());
+                            caller1.tell("You ended the call.\n\nStart a call by entering recipient name. \nBack - return to main menu", getSelf());
                         } else {
                             System.out.println("No active call found for " + getSender().path().name());
+                            getSender().tell("You ended the call.\n\nStart a call by entering recipient name. \nBack - return to main menu", getSelf());
                         }
-                    } else {
-                        System.out.println("Invalid input: " + input);
+                    }
+                    else if (input.equalsIgnoreCase("back")){
+                        // do nothing
+                    }
+                    else {
+                        ActorRef target = userActors.get(input);
+                        if (target != null) {
+                            target.tell(new IncomingCall(getSender().path().name()), getSelf());
+                            activeCalls.put(getSender(), target);
+                            System.out.println( getSender().path().name() + " initiated a call to " + input);
+                            getSender().tell("Call initiated. Waiting for " + input + " to accept or reject the call. Press '0' to end the call.", getSelf());
+                        } else {
+                            getSender().tell("Call initiated. Waiting for " + input + " to accept or reject the call. Press '0' to end the call.", getSelf());
+                            // no need this one cz should be able to call anyone although not online
+                            //getSender().tell(new CallFailed(input + " is not online."), getSelf());
+                        }
+
                     }
                 })
                 // Handle call response (accept/reject)
@@ -185,3 +224,4 @@ public class CallServer extends AbstractActor {
         system.actorOf(CallServer.props(), "callServer");
     }
 }
+

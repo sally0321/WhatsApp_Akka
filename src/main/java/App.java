@@ -81,7 +81,7 @@ public class App {
                 case "2": {
                     login();
                     return; // Exit the initial menu after successful login
-                     // Retry on failed login
+                    // Retry on failed login
                 }
                 default:
                     System.out.println("Invalid option. Please try again.");
@@ -196,7 +196,7 @@ public class App {
         }
         return input;
     }
-    
+
     private static void menu() {
         System.out.println();
         System.out.println("Menu:");
@@ -261,22 +261,17 @@ public class App {
         // Create the actor selection inside the method
         ActorSelection callServerActor = system.actorSelection("akka://CallServerSystem@127.0.0.1:2552/user/callServer");
 
-        System.out.println("Enter the recipient to call:");
-        String targetUsername = scanner.nextLine();
+        System.out.println("\nStart a call by entering recipient name. \nBack - return to main menu");
 
-        // Initiate call
-        callServerActor.tell(new CallServer.InitiateCall(username, targetUsername), userActor);
-        System.out.println("Call initiated. Waiting for " + targetUsername + " to accept or reject the call.");
 
         while (true) {
-            System.out.println("Enter your response (Y = Accept, N = Reject, 0 = End Call): ");
             String input = scanner.nextLine();
 
             // Send all inputs to CallServer as a normal string
             callServerActor.tell(input, userActor);
 
-            if ("0".equals(input)) {
-                System.out.println("You ended the call.");
+            if (input.equals("back")) {
+                callServerActor.tell(new CallServer.DisconnectUser(username, userActor), userActor);
                 break; // Exit the loop when the user ends the call
             }
         }
@@ -315,6 +310,4 @@ public class App {
             }
         }
     }
-
-
 }
