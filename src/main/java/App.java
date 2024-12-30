@@ -382,8 +382,7 @@ public class App {
     private static void profileSettings() {
         ActorSelection serverActor = system.actorSelection("akka://ServerSystem@127.0.0.1:2553/user/serverActor");
         System.out.println("1 - View Profile");
-        System.out.println("2 - Update Username");
-        System.out.println("3 - Update Bio");
+        System.out.println("2 - Update Bio");
         System.out.println("back - Return to main menu");
 
         String option = scanner.nextLine();
@@ -393,14 +392,7 @@ public class App {
                 serverActor.tell(new ProfileServer.ViewProfile(username, bio), userActor);
                 break;
 
-            case "2": // Update Username
-                System.out.println("Enter your new username:");
-                String oldUsername = username;
-                username = scanner.nextLine(); // Update the username locally
-                serverActor.tell(new ProfileServer.UpdateUsername(oldUsername, username, bio), userActor);
-                break;
-
-            case "3": // Update Bio
+            case "2": // Update Bio
                 System.out.println("Enter your new bio:");
                 bio = scanner.nextLine(); // Update the bio locally
                 serverActor.tell(new ProfileServer.UpdateBio(username, bio), userActor);
