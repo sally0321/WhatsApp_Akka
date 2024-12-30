@@ -19,29 +19,29 @@ public class App {
     private static String input;
     private static ActorRef userActor;
 
-    // Create our own ActorSystem to host the user's local Actor (User.class).
+    
     private static final ActorSystem system = ActorSystem.create("ClientSystem");
 
-    // If you have an AuthenticationServer running on a separate ActorSystem:
+
     private static final ActorSelection authServer = system.actorSelection(
             "akka://AuthenticationServerSystem@127.0.0.1:2553/user/authenticationServer"
     );
 
     public static void main(String[] args) {
-        // 1) Prompt user with initialMenu until they successfully register or log in
+        
         initialMenu();
 
-        // 2) Now that the user definitely has a non-null username, create the local user actor
+        
         userActor = system.actorOf(Props.create(User.class, username), username);
 
-        // 3) (Optional) Connect to a CallServer (if you have one)
+        
         ActorSelection callServerActor = system.actorSelection(
                 "akka://CallServerSystem@127.0.0.1:2552/user/callServer"
         );
         // e.g., connect the user to the call server
         callServerActor.tell(new CallServer.ConnectUser(username, userActor), userActor);
 
-        // 4) Enter the main application loop
+        
         while (true) {
             menu(); // display the main menu
             if (input.equalsIgnoreCase("exit")) {
