@@ -59,7 +59,7 @@ public class User extends AbstractActor {
                     System.out.println("Display profile for " + message.username);
                     getSender().tell("Username: " + message.username + "\nBio: " + bio, getSelf());
                 })
-               
+
                 .match(ProfileServer.UpdateBio.class, message -> {
                     // Handle bio update
                     System.out.println("Bio updated for " + message.username + " to " + message.bio);
