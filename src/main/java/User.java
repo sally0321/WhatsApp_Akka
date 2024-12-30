@@ -53,17 +53,13 @@ public class User extends AbstractActor {
                     System.out.println("\nStart a call by entering recipient name. \nBack - return to main menu");
                 })
 
-            .match(ProfileServer.ViewProfile.class, message -> {
+                .match(ProfileServer.ViewProfile.class, message -> {
                     // View the profile with the current username and bio
                     String bio = message.bio == null ? "No bio available." : message.bio;
                     System.out.println("Display profile for " + message.username);
                     getSender().tell("Username: " + message.username + "\nBio: " + bio, getSelf());
                 })
-                .match(ProfileServer.UpdateUsername.class, message -> {
-                    // Handle username update and preserve bio
-                    System.out.println("Username updated from " + message.oldUsername + " to " + message.username);
-                    getSender().tell(new ProfileServer.ViewProfile(message.username, message.bio), getSelf());
-                })
+               
                 .match(ProfileServer.UpdateBio.class, message -> {
                     // Handle bio update
                     System.out.println("Bio updated for " + message.username + " to " + message.bio);
