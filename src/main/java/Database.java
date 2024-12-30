@@ -10,9 +10,6 @@ public class Database {
     private static final String CHAT_DIRECTORY = "src/main/resources/chat_history/";
     private static final String CONTACT_DIRECTORY = "src/main/resources/contact_list/";
     private static final String USER_FILE = "src/main/resources/user_list.txt";
-    private static final String TEST_FILE = "src/main/resources/testUser_list.txt";
-    private static final String MVN_DIRECTORY = "src/main/resources/chat_history/";
-
 
     // Save the message in a text file named after the users
     public static void saveMessage(String sender, String recipient, String message) {
@@ -122,21 +119,21 @@ public class Database {
         return contacts;
     }
 
-    public static ArrayList<String> getUsers() {
-        File file = new File(USER_FILE);
-        ArrayList<String> users = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                users.add(line);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return users;
-    }
+//    public static ArrayList<String> getUsers() {
+//        File file = new File(USER_FILE);
+//        ArrayList<String> users = new ArrayList<>();
+//        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+//            String line;
+//
+//            while ((line = reader.readLine()) != null) {
+//                users.add(line);
+//            }
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return users;
+//    }
 
     // Ensure the file name is in sorted order (userA_userB.txt)
     private static String getSortedFileName(String userA, String userB) {
@@ -150,7 +147,7 @@ public class Database {
             return;
         }
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(TEST_FILE, true))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(USER_FILE, true))) {
             writer.write(username + "," + phoneNumber);  // Save username and phone number
             writer.newLine();
         } catch (IOException e) {
@@ -160,7 +157,7 @@ public class Database {
 
     // Function to get the list of all usernames
     public static ArrayList<String> getUsernameList() {
-        File file = new File(TEST_FILE);
+        File file = new File(USER_FILE);
         ArrayList<String> usernames = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
@@ -176,7 +173,7 @@ public class Database {
     }
 
     public static List<String> getPhoneNumbers(String username) {
-        File file = new File(TEST_FILE);
+        File file = new File(USER_FILE);
         List<String> phoneNumbers = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -194,7 +191,7 @@ public class Database {
     }
 
     public static String getPhoneNumberIfExists(String phoneNum) {
-        File file = new File(TEST_FILE);
+        File file = new File(USER_FILE);
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -210,7 +207,7 @@ public class Database {
     }
 
     public static boolean deleteUserAccount(String username, String phoneNum) {
-        File userFile = new File(TEST_FILE);
+        File userFile = new File(USER_FILE);
         List<String> updatedUsers = new ArrayList<>(); // List to hold the remaining users
 
         try (BufferedReader reader = new BufferedReader(new FileReader(userFile))) {

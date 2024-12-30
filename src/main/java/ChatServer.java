@@ -148,7 +148,7 @@ public class ChatServer extends AbstractActor {
         public final String username;
         public final String contact;
 
-        public AddContact(String contact, String username) {
+        public AddContact(String username, String contact) {
             this.contact = contact;
             this.username = username;
         }

@@ -101,8 +101,7 @@ public class CallServer extends AbstractActor {
                             getSender().tell("Call initiated. Waiting for " + input + " to accept or reject the call. Press '0' to end the call.", getSelf());
                         } else {
                             getSender().tell("Call initiated. Waiting for " + input + " to accept or reject the call. Press '0' to end the call.", getSelf());
-                            // no need this one cz should be able to call anyone although not online
-                            //getSender().tell(new CallFailed(input + " is not online."), getSelf());
+                            getSender().tell(new CallFailed(input + " is not online."), getSelf());
                         }
 
                     }

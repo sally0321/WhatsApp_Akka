@@ -229,8 +229,6 @@ public class App {
     }
 
 
-
-
     private static String promptRecipient() {
         while (true) {
             if (Database.getContacts(username).isEmpty()) {
@@ -272,13 +270,17 @@ public class App {
                 else {
                     break;
                 }
-            } else if (Database.getUsers().contains(input)) {
+            } else if (Database.getUsernameList().contains(input)) {
                 if (Database.getContacts(username).containsKey(input)) {
                     System.out.println("Contact already exists.");
                     break;
                 } else {
-                    Database.saveContact(username, input);
-                    System.out.println("User added to contacts.");
+                    serverActor.tell(new ChatServer.AddContact(username, input), userActor);
+                    try {
+                        TimeUnit.SECONDS.sleep(1);
+                    } catch (InterruptedException e) {
+                        System.out.println("Error adding contact.");
+                    }
                     break;
                 }
             } else {
@@ -322,7 +324,7 @@ public class App {
             serverActor.tell(new ChatServer.SetCommunicationChannel(username, recipient), userActor);
 
             System.out.println(Database.getChatHistory(username, recipient));
-            System.out.println("Enter your message:");
+            System.out.println("Enter your message (Enter back to return to contacts):");
 
             while (true) {
                 message = scanner.nextLine();
