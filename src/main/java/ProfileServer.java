@@ -2,97 +2,81 @@ import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-import akka.actor.AbstractActor;
-import akka.actor.Props;
-import akka.actor.Status;
-
-import java.util.HashMap;
-import java.util.Map;
-
 public class ProfileServer extends AbstractActor {
+    private static Scanner scanner = new Scanner(System.in);
     private final Map<String, String> profiles = new HashMap<>();
 
     public static Props props() {
-        return Props.create(ProfileServer.class);
+        return Props.create(ProfileServer.class, ProfileServer::new);
     }
 
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(ViewProfile.class, this::handleViewProfile)
-                .match(UpdateUsername.class, this::handleUpdateUsername)
-                .match(UpdateBio.class, this::handleUpdateBio)
+                .match(ViewProfile.class, message -> {
+                    String bio = profiles.getOrDefault(message.username, "No bio available.");
+                    System.out.println("Display profile for " + message.username);
+                    getSender().tell("Username: " + message.username + "\nBio: " + bio, getSelf());
+                })
+                .match(UpdateUsername.class, message -> {
+                    profiles.put(message.oldUsername, message.username);
+                    System.out.println("Username updated for " + message.username);
+                    getSender().tell("Username updated for " + message.username + ".", getSelf());
+                })
+                .match(UpdateBio.class, message -> {
+                    profiles.put(message.username, message.bio);
+                    System.out.println("Bio updated for " + message.username + " to " + message.bio);
+                    getSender().tell("Bio updated for " + message.username + ".", getSelf());
+                })
                 .build();
     }
 
-    private void handleViewProfile(ViewProfile msg) {
-        if (profiles.containsKey(msg.username)) {
-            getSender().tell("Username: " + msg.username + ", Bio: " + profiles.get(msg.username), getSelf());
-        } else {
-            getSender().tell(new Status.Failure(new Exception("Profile not found")), getSelf());
-        }
-    }
-
-    private void handleUpdateUsername(UpdateUsername msg) {
-        if (profiles.containsKey(msg.oldUsername)) {
-            String bio = profiles.remove(msg.oldUsername);
-            profiles.put(msg.newUsername, bio);
-            getSender().tell("Username updated successfully to: " + msg.newUsername, getSelf());
-        } else {
-            getSender().tell(new Status.Failure(new Exception("Profile not found")), getSelf());
-        }
-    }
-
-    private void handleUpdateBio(UpdateBio msg) {
-        if (profiles.containsKey(msg.username)) {
-            profiles.put(msg.username, msg.newBio);
-            getSender().tell("Bio updated successfully to: " + msg.newBio, getSelf());
-        } else {
-            getSender().tell(new Status.Failure(new Exception("Profile not found")), getSelf());
-        }
-    }
-
-    public static class ViewProfile {
+    public static class ViewProfile implements Serializable {
         public final String username;
+        public final String bio;
 
-        public ViewProfile(String username) {
+        public ViewProfile(String username, String bio) {
             this.username = username;
+            this.bio = bio;
         }
     }
 
-    public static class UpdateUsername {
+    public static class UpdateUsername implements Serializable {
         public final String oldUsername;
-        public final String newUsername;
-
-        public UpdateUsername(String oldUsername, String newUsername) {
-            this.oldUsername = oldUsername;
-            this.newUsername = newUsername;
-        }
-    }
-
-    public static class UpdateBio {
         public final String username;
-        public final String newBio;
+        public final String bio;
 
-        public UpdateBio(String username, String newBio) {
+        public UpdateUsername(String oldUsername, String username, String bio) {
+            this.oldUsername = oldUsername;
             this.username = username;
-            this.newBio = newBio;
+            this.bio = bio; // Preserve the bio during username updates
         }
     }
 
-    public class ViewProfileResponse {
-        public String username;
-        public String bio;
+    public static class UpdateBio implements Serializable {
+        public final String username;
+        public final String bio;
+
+        public UpdateBio(String username, String bio) {
+            this.username = username;
+            this.bio = bio;
+        }
     }
 
-    public class ErrorResponse {
-        public String message;
+
+    public static void main(String[] args) {
+        ActorSystem system = ActorSystem.create("ServerSystem");
+        ActorRef serverActor = system.actorOf(ProfileServer.props(), "serverActor");
+        while (true){
+            if (scanner.nextLine().equalsIgnoreCase("exit")){
+                system.terminate();
+                break;
+            }
+        }
     }
 }
-
