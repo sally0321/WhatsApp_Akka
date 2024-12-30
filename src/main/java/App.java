@@ -16,6 +16,7 @@ public class App {
 
     private static String username;
     private static String phoneNum;
+    private static String bio;
     private static String input;
     private static ActorRef userActor;
 
