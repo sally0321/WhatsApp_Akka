@@ -1,6 +1,7 @@
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Database {
@@ -141,8 +142,13 @@ public class Database {
         return userA.compareTo(userB) < 0 ? userA + "_" + userB + ".txt" : userB + "_" + userA + ".txt";
     }
 
-
     public static void saveUser(String username, String phoneNumber) {
+        List<String> phoneNumbers = getPhoneNumbers(username);
+        if (phoneNumbers.contains(phoneNumber)) {
+            System.out.println("This username and phone number combination already exists.");
+            return;
+        }
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(TEST_FILE, true))) {
             writer.write(username + "," + phoneNumber);  // Save username and phone number
             writer.newLine();
@@ -168,23 +174,22 @@ public class Database {
         return usernames;
     }
 
-    // Function to get the phone number of a given username
-    public static String getPhoneNumber(String username) {
+    public static List<String> getPhoneNumbers(String username) {
         File file = new File(TEST_FILE);
+        List<String> phoneNumbers = new ArrayList<>();
+
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
-
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
                 if (parts[0].equals(username)) {
-                    return parts[1];  // Return phone number (after the comma)
+                    phoneNumbers.add(parts[1]); // Add all phone numbers for the username
                 }
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;  // Return null if username is not found
+        return phoneNumbers; // Return all matching phone numbers
     }
 
     public static String getPhoneNumberIfExists(String phoneNum) {
@@ -202,4 +207,37 @@ public class Database {
         }
         return null; // Return null if the phone number is not found
     }
+
+    public static boolean deleteUserAccount(String username, String phoneNum) {
+        File userFile = new File(TEST_FILE);
+        List<String> updatedUsers = new ArrayList<>(); // List to hold the remaining users
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(userFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (!(parts[0].equals(username) && parts[1].equals(phoneNum))) {
+                    updatedUsers.add(line); // Keep lines that don't match both username and phone number
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false; // Return false if an error occurs during file reading
+        }
+
+        // Write the updated users back to the file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(userFile, false))) {
+            for (String user : updatedUsers) {
+                writer.write(user);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false; // Return false if an error occurs during file writing
+        }
+
+        return true; // Return true if deletion was successful
+    }
+
+
 }

@@ -4,6 +4,7 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -11,12 +12,242 @@ import java.util.concurrent.TimeUnit;
 
 public class App {
 
+    private static final Scanner scanner = new Scanner(System.in);
+
+    private static String username;
+    private static String phoneNum;
+    private static String input;
+    private static ActorRef userActor;
+
+    // Create our own ActorSystem to host the user's local Actor (User.class).
+    private static final ActorSystem system = ActorSystem.create("ClientSystem");
+
+    // If you have an AuthenticationServer running on a separate ActorSystem:
+    private static final ActorSelection authServer = system.actorSelection(
+            "akka://AuthenticationServerSystem@127.0.0.1:2553/user/authenticationServer"
+    );
+
+    public static void main(String[] args) {
+        // 1) Prompt user with initialMenu until they successfully register or log in
+        initialMenu();
+
+        // 2) Now that the user definitely has a non-null username, create the local user actor
+        userActor = system.actorOf(Props.create(User.class, username), username);
+
+        // 3) (Optional) Connect to a CallServer (if you have one)
+        ActorSelection callServerActor = system.actorSelection(
+                "akka://CallServerSystem@127.0.0.1:2552/user/callServer"
+        );
+        // e.g., connect the user to the call server
+        callServerActor.tell(new CallServer.ConnectUser(username, userActor), userActor);
+
+        // 4) Enter the main application loop
+        while (true) {
+            menu(); // display the main menu
+            if (input.equalsIgnoreCase("exit")) {
+                system.terminate();
+                break;
+            }
+            switch (input) {
+                case "1": {
+                    startChatting();
+                    break;
+                }
+                case "2": {
+                    profileSettings();
+                    break;
+                }
+                case "3": {
+                    // Video calling functionality (placeholder)
+                    startCall();
+                    break;
+                }
+                case "4": {
+                    accountSettings();
+                    break;
+                }
+                default:
+                    System.out.println("Invalid option.");
+            }
+        }
+    }
+
+    /**
+     * Displays the initial registration/login menu in a loop until
+     * the user successfully registers or logs in (so that username != null).
+     */
+    private static void initialMenu() {
+        while (true) {
+            System.out.println("\nWelcome to WhatsApp!");
+            System.out.println("1 - Register");
+            System.out.println("2 - Login");
+            System.out.println("exit - Quit the app");
+            input = scanner.nextLine();
+
+            if (input.equalsIgnoreCase("exit")) {
+                system.terminate();
+                System.exit(0);
+            }
+
+            switch (input) {
+                case "1": {
+                    boolean registered = register();
+                    if (registered) {
+                        // If registration succeeded, we have a valid username.
+                        return; // exit initialMenu and proceed to main
+                    }
+                    // If registration failed (e.g. phone number exists),
+                    // we do not return, so we remain in this while-loop,
+                    // re-displaying the initial menu.
+                    break;
+                }
+                case "2": {
+                    boolean loggedIn = login();
+                    if (loggedIn) {
+                        // If login succeeded, we have a valid username.
+                        return; // exit initialMenu and proceed to main
+                    }
+                    // If login failed, we remain in the loop
+                    break;
+                }
+                default:
+                    System.out.println("Invalid option. Please try again.");
+            }
+        }
+    }
+
+    /**
+     * Attempts to register a new account. Returns true if successful, false otherwise.
+     */
+    private static boolean register() {
+        System.out.println("Register a new account.");
+        String newUsername = promptUsername();
+        String newPhoneNum = promptPhoneNum();
+
+        // Check if phone number is already in DB
+        if (Database.getPhoneNumberIfExists(newPhoneNum) != null) {
+            System.out.println("Phone number already registered. Please try logging in.");
+            return false; // Registration fails; stay in initialMenu
+        }
+
+        // Otherwise, proceed with registration
+        Database.saveUser(newUsername, newPhoneNum);
+        System.out.println("Registration successful! Welcome, " + newUsername + "!");
+
+        // Set global username and phoneNum
+        username = newUsername;
+        phoneNum = newPhoneNum;
+
+        return true; // Registration succeeded; exit initialMenu
+    }
+
+    /**
+     * Attempts to log in an existing user. Returns true if successful, false otherwise.
+     */
+    private static boolean login() {
+        String inputPhoneNum = promptPhoneNum();
+
+        // Find the username(s) associated with the phone number
+        ArrayList<String> usernames = Database.getUsernameList();
+        for (String user : usernames) {
+            List<String> phoneNumbers = Database.getPhoneNumbers(user);
+            if (phoneNumbers.contains(inputPhoneNum)) {
+                // Found a matching user
+                System.out.println("Welcome back, " + user + "!");
+                username = user;
+                phoneNum = inputPhoneNum;
+                return true; // Login succeeded
+            }
+        }
+        System.out.println("No user found with that phone number. Please try again.");
+        return false; // Login failed; stay in initialMenu
+    }
+
+    private static void menu() {
+        System.out.println("\nMain Menu:");
+        System.out.println("1 - Start Chatting");
+        System.out.println("2 - Profile Settings");
+        System.out.println("3 - Video Calling");
+        System.out.println("4 - Account Settings");
+        System.out.println("exit - Quit the app");
+        input = scanner.nextLine();
+    }
+
+    private static String accountSettings() {
+        System.out.println("1 - Logout");
+        System.out.println("2 - Delete account");
+        System.out.println("Back - Return to main menu");
+
+        String input = scanner.nextLine();
+
+        if (input.equals("1")) {
+            logout();
+        } else if (input.equalsIgnoreCase("back")) {
+            return input;
+        } else if (input.equals("2")) {
+            deleteAccount();
+        } else {
+            System.out.println("Invalid option. Please try again.");
+        }
+        return input;
+    }
+
+    private static void logout() {
+        username = null;
+        phoneNum = null;
+        System.out.println("You have been logged out.");
+        // Return user to initial menu
+        initialMenu();
+    }
+
+    private static void deleteAccount() {
+        // Confirm deletion
+        System.out.println("Are you sure you want to delete your account? This action cannot be undone. (yes/no)");
+        String confirmation = scanner.nextLine();
+
+        if (!confirmation.equalsIgnoreCase("yes")) {
+            System.out.println("Account deletion canceled.");
+            return;
+        }
+
+        // Call the Database method to handle the actual deletion
+        boolean success = Database.deleteUserAccount(username, phoneNum);
+
+        if (success) {
+            System.out.println("Account successfully deleted.");
+            logout(); // Log out the user after account deletion
+        } else {
+            System.out.println("There was an error deleting your account.");
+        }
+    }
+
+    // ======================================
+    // Helper methods for user interactions
+    // ======================================
+
+    // Prompt user to enter their username
+    private static String promptUsername() {
+        System.out.println("Enter your username:");
+        return scanner.nextLine();
+    }
+
+    // Prompt user to enter their phone number
+    private static String promptPhoneNum() {
+        System.out.println("Enter your phone number:");
+        return scanner.nextLine();
+    }
+
+
+/*
     private static Scanner scanner = new Scanner(System.in);
     private static String username;
     private static String phoneNum;
     private static String input;
     private static ActorRef userActor;
     private static ActorSystem system = ActorSystem.create("ClientSystem");
+    private static ActorSelection authServer = system.actorSelection(
+            "akka://AuthenticationServerSystem@127.0.0.1:2553/user/authenticationServer"
+    );
 
 
     public static void main(String[] args) {
@@ -44,15 +275,21 @@ public class App {
                     profileSettings();
                     break;
                 }
-                case "3": // Video calling functionality
+                case "3": {// Video calling functionality
                     startCall();
                     break;
+                }
+                case "4": {
+                    accountSettings();
+                    break;
+                }
                 default:
                     System.out.println("Invalid option.");
             }
         }
 
     }
+
     // Prompt user to enter their username
     private static String promptUsername() {
         System.out.println("Enter your username:");
@@ -89,6 +326,85 @@ public class App {
         }
     }
 
+    private static String accountSettings() {
+        System.out.println("1 - Logout");
+        System.out.println("2 - Delete account");
+        System.out.println("Back - Return to main menu");
+
+        String input = scanner.nextLine();
+
+        if (input.equals("1")) {
+            logout();
+        } else if (input.equalsIgnoreCase("back")) {
+            return input;
+        } else if (input.equals("2")) {
+            deleteAccount();
+        } else {
+            System.out.println("Invalid option. Please try again.");
+        }
+        return input;
+    }
+
+    private static void logout() {
+        username = null;
+        phoneNum = null;
+        System.out.println("You have been logged out.");
+        // Return user to initial menu
+        initialMenu();
+    }
+
+    private static void deleteAccount() {
+        // Confirm deletion
+        System.out.println("Are you sure you want to delete your account? This action cannot be undone. (yes/no)");
+        String confirmation = scanner.nextLine();
+
+        if (!confirmation.equalsIgnoreCase("yes")) {
+            System.out.println("Account deletion canceled.");
+            return;
+        }
+
+        // Call the Database method to handle the actual deletion
+        boolean success = Database.deleteUserAccount(username, phoneNum);
+
+        if (success) {
+            System.out.println("Account successfully deleted.");
+            logout(); // Log out the user after account deletion
+        } else {
+            System.out.println("There was an error deleting your account.");
+        }
+    }
+
+ */
+
+    /*
+    private static void logout() {
+        username = null;
+        phoneNum = null;
+        System.out.println("You have been logged out.");
+        initialMenu();
+    }
+
+    private static void deleteAccount() {
+        // Confirm deletion
+        System.out.println("Are you sure you want to delete your account? This action cannot be undone. (yes/no)");
+        String confirmation = scanner.nextLine();
+
+        if (!confirmation.equalsIgnoreCase("yes")) {
+            System.out.println("Account deletion canceled.");
+            return;
+        }
+
+        // Call the Database method to handle the actual deletion
+        boolean success = Database.deleteUserAccount(username, phoneNum);
+
+        if (success) {
+            System.out.println("Account successfully deleted.");
+            logout(); // Log out the user after account deletion
+        } else {
+            System.out.println("There was an error deleting your account.");
+        }
+    }
+
     // Prompt user to enter their phone number
     private static String promptPhoneNum() {
         System.out.println("Enter your phone number:");
@@ -106,6 +422,7 @@ public class App {
 
         if (Database.getPhoneNumberIfExists(newPhoneNum) != null) {
             System.out.println("Phone number already registered. Please try logging in.");
+            initialMenu();
             return;
         }
 
@@ -119,27 +436,24 @@ public class App {
 
     // Log in an existing user
     private static void login() {
-        String newPhoneNum = promptPhoneNum();
+        String inputPhoneNum = promptPhoneNum();
 
-        // Find the username associated with the phone number
+        // Find the username(s) associated with the phone number
         ArrayList<String> usernames = Database.getUsernameList();
         boolean found = false;
 
         for (String user : usernames) {
-            if (Database.getPhoneNumber(user).equals(newPhoneNum)) {
+            List<String> phoneNumbers = Database.getPhoneNumbers(user); // Get all phone numbers for the user
+            if (phoneNumbers.contains(inputPhoneNum)) {
                 System.out.println("Welcome back, " + user + "!");
-                found = true;
                 username = user;
-                phoneNum = newPhoneNum;
-                break;
+                phoneNum = inputPhoneNum;
+                found = true;
+                break; // Exit the loop once a match is found
             }
         }
-
-        if (!found) {
-            System.out.println("Phone number not found. Please register first.");
-        }
     }
-
+*/
     private static String promptRecipient() {
         while (true) {
             if (Database.getContacts(username).isEmpty()) {
@@ -196,16 +510,19 @@ public class App {
         }
         return input;
     }
-
+/*
     private static void menu() {
         System.out.println();
         System.out.println("Menu:");
         System.out.println("1 - Messaging");
         System.out.println("2 - Profile Settings");
         System.out.println("3 - Call");
+        System.out.println("4 - Account Settings");
         System.out.println("exit - Quit WhatsApp");
         input = scanner.nextLine();
     }
+
+ */
 
     private static void showContactList() {
         Map<String, Integer> contacts = Database.getContacts(username);
@@ -311,3 +628,5 @@ public class App {
         }
     }
 }
+
+
