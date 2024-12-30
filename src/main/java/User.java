@@ -52,27 +52,24 @@ public class User extends AbstractActor {
                     System.out.println(msg.message);
                     System.out.println("\nStart a call by entering recipient name. \nBack - return to main menu");
                 })
+
+            .match(ProfileServer.ViewProfile.class, message -> {
+                    // View the profile with the current username and bio
+                    String bio = message.bio == null ? "No bio available." : message.bio;
+                    System.out.println("Display profile for " + message.username);
+                    getSender().tell("Username: " + message.username + "\nBio: " + bio, getSelf());
+                })
+                .match(ProfileServer.UpdateUsername.class, message -> {
+                    // Handle username update and preserve bio
+                    System.out.println("Username updated from " + message.oldUsername + " to " + message.username);
+                    getSender().tell(new ProfileServer.ViewProfile(message.username, message.bio), getSelf());
+                })
+                .match(ProfileServer.UpdateBio.class, message -> {
+                    // Handle bio update
+                    System.out.println("Bio updated for " + message.username + " to " + message.bio);
+                    getSender().tell(new ProfileServer.ViewProfile(message.username, message.bio), getSelf());
+                })
                 .build();
     }
 
 }
-
-/*
-                .match(ProfileServer.ViewProfile.class, msg -> {
-        System.out.println("Profile for " + msg.username + ":");
-                })
-                        .match(ProfileServer.UpdateUsername.class, msg -> {
-        System.out.println("Username updated from " + username + " to " + msg.newUsername);
-username = msg.newUsername; // Update local username
-                })
-                        .match(ProfileServer.UpdateBio.class, msg -> {
-        System.out.println("Bio updated for " + msg.username);
-                })
-                        .match(ProfileServer.ViewProfileResponse.class, response -> {
-        System.out.println("Username: " + response.username + ", Bio: " + response.bio);
-                })
-                        .match(ProfileServer.ErrorResponse.class, error -> {
-        System.out.println("Error: " + error.message);
-                })
-                        .build();
-*/
