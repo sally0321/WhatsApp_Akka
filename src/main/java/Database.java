@@ -81,6 +81,7 @@ public class Database {
                 return "\nNew chat created for " + userA + " and " + userB + "!\n";
             } else {
                 chat += ("\nChat history between " + userA + " and " + userB + ":\n");
+                chat += line + '\n';
                 while ((line = reader.readLine()) != null) {
                     chat = chat + line + '\n';
                 }
