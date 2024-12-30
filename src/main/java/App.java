@@ -181,7 +181,7 @@ public class App {
         String newUsername = promptUsername();
         String newPhoneNum = promptPhoneNum();
 
-        // 1) Check if this phone number is already in use in our local “database”
+        
         if (Database.getPhoneNumberIfExists(newPhoneNum) != null) {
             System.out.println("Phone number already registered. "
                     + "Please try logging in or use a different number.");
@@ -195,11 +195,11 @@ public class App {
                 userActor
         );
 
-        // Store them locally so we know who we intend to be
+        
         username = newUsername;
         phoneNum = newPhoneNum;
 
-        // The success/failure message arrives asynchronously to userActor
+        
     }
 
     private static void login() {
@@ -215,15 +215,14 @@ public class App {
             return;
         }
 
-        // We do not prompt for username; we will rely on AuthServer for the correct username
+        
         authServer.tell(
                 new AuthenticationServer.LoginUser(inputPhoneNum, userActor),
                 userActor
         );
         System.out.println("Log in successful! Welcome " + usernameInput + ".");
 
-        // For the moment, we don't know the username until the server confirms it,
-        // but let's store phoneNum so we can keep track
+       
         phoneNum = inputPhoneNum;
         username = usernameInput;
     }
