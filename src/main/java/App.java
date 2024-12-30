@@ -357,7 +357,7 @@ public class App {
             }
         }
     }
-/*
+    
     private static void profileSettings() {
         ActorSelection serverActor = system.actorSelection("akka://ServerSystem@127.0.0.1:2553/user/serverActor");
         System.out.println("1 - View Profile");
@@ -391,8 +391,6 @@ public class App {
             e.printStackTrace();
         }
     }
-
- */
 }
 
 
