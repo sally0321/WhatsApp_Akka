@@ -55,7 +55,7 @@ public class App {
                     break;
                 }
                 case "2": {
-                    //profileSettings();
+                    profileSettings();
                     break;
                 }
                 case "3": {
