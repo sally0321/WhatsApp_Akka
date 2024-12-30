@@ -380,36 +380,44 @@ public class App {
     }
 
     private static void profileSettings() {
-        ActorSelection profileServer = system.actorSelection("akka://ServerSystem@127.0.0.1:2553/user/profileServer");
+        ActorSelection serverActor = system.actorSelection("akka://ServerSystem@127.0.0.1:2553/user/serverActor");
+        System.out.println("1 - View Profile");
+        System.out.println("2 - Update Username");
+        System.out.println("3 - Update Bio");
+        System.out.println("back - Return to main menu");
 
-        while (true) {
-            System.out.println("1 - View Profile");
-            System.out.println("2 - Update Username");
-            System.out.println("3 - Update Bio");
-            System.out.println("exit - Quit");
+        String option = scanner.nextLine();
 
-            String option = scanner.nextLine();
-            switch (option) {
-                case "1": // View Profile
-                    profileServer.tell(new ProfileServer.ViewProfile(username), ActorRef.noSender());
-                    break;
-                case "2": // Update Username
-                    System.out.println("Enter your new username:");
-                    String newUsername = scanner.nextLine();
-                    profileServer.tell(new ProfileServer.UpdateUsername(username, newUsername), ActorRef.noSender());
-                    username = newUsername; // Update the local reference
-                    break;
-                case "3": // Update Bio
-                    System.out.println("Enter your new bio:");
-                    String newBio = scanner.nextLine();
-                    profileServer.tell(new ProfileServer.UpdateBio(username, newBio), ActorRef.noSender());
-                    break;
-                case "exit": // Exit
-                    system.terminate();
-                    return;
-                default:
-                    System.out.println("Invalid option.");
-            }
+        switch (option) {
+            case "1": // View Profile
+                serverActor.tell(new ProfileServer.ViewProfile(username, bio), userActor);
+                break;
+
+            case "2": // Update Username
+                System.out.println("Enter your new username:");
+                String oldUsername = username;
+                username = scanner.nextLine(); // Update the username locally
+                serverActor.tell(new ProfileServer.UpdateUsername(oldUsername, username, bio), userActor);
+                break;
+
+            case "3": // Update Bio
+                System.out.println("Enter your new bio:");
+                bio = scanner.nextLine(); // Update the bio locally
+                serverActor.tell(new ProfileServer.UpdateBio(username, bio), userActor);
+                break;
+
+            case "back":
+                menu();
+                break;
+
+            default:
+                System.out.println("Invalid option.");
+        }
+
+        try {
+            Thread.sleep(500); // Simulate waiting for server feedback
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }
