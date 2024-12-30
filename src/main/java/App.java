@@ -24,7 +24,7 @@ public class App {
 
 
     private static final ActorSelection authServer = system.actorSelection(
-            "akka://AuthenticationServerSystem@127.0.0.1:2553/user/authenticationServer"
+            "akka://AuthenticationServerSystem@127.0.0.1:2554/user/authenticationServer"
     );
 
     public static void main(String[] args) {
@@ -54,7 +54,7 @@ public class App {
                     break;
                 }
                 case "2": {
-                    profileSettings();
+                    //profileSettings();
                     break;
                 }
                 case "3": {
@@ -72,10 +72,6 @@ public class App {
         }
     }
 
-    /**
-     * Displays the initial registration/login menu in a loop until
-     * the user successfully registers or logs in (so that username != null).
-     */
     private static void initialMenu() {
         while (true) {
             System.out.println("\nWelcome to WhatsApp!");
@@ -91,76 +87,17 @@ public class App {
 
             switch (input) {
                 case "1": {
-                    boolean registered = register();
-                    if (registered) {
-                        // If registration succeeded, we have a valid username.
-                        return; // exit initialMenu and proceed to main
-                    }
-                    // If registration failed (e.g. phone number exists),
-                    // we do not return, so we remain in this while-loop,
-                    // re-displaying the initial menu.
-                    break;
+                    register();
+                    return; // Exit after registration attempt
                 }
                 case "2": {
-                    boolean loggedIn = login();
-                    if (loggedIn) {
-                        // If login succeeded, we have a valid username.
-                        return; // exit initialMenu and proceed to main
-                    }
-                    // If login failed, we remain in the loop
-                    break;
+                    login();
+                    return; // Exit after login attempt
                 }
                 default:
                     System.out.println("Invalid option. Please try again.");
             }
         }
-    }
-
-    /**
-     * Attempts to register a new account. Returns true if successful, false otherwise.
-     */
-    private static boolean register() {
-        System.out.println("Register a new account.");
-        String newUsername = promptUsername();
-        String newPhoneNum = promptPhoneNum();
-
-        // Check if phone number is already in DB
-        if (Database.getPhoneNumberIfExists(newPhoneNum) != null) {
-            System.out.println("Phone number already registered. Please try logging in.");
-            return false; // Registration fails; stay in initialMenu
-        }
-
-        // Otherwise, proceed with registration
-        Database.saveUser(newUsername, newPhoneNum);
-        System.out.println("Registration successful! Welcome, " + newUsername + "!");
-
-        // Set global username and phoneNum
-        username = newUsername;
-        phoneNum = newPhoneNum;
-
-        return true; // Registration succeeded; exit initialMenu
-    }
-
-    /**
-     * Attempts to log in an existing user. Returns true if successful, false otherwise.
-     */
-    private static boolean login() {
-        String inputPhoneNum = promptPhoneNum();
-
-        // Find the username(s) associated with the phone number
-        ArrayList<String> usernames = Database.getUsernameList();
-        for (String user : usernames) {
-            List<String> phoneNumbers = Database.getPhoneNumbers(user);
-            if (phoneNumbers.contains(inputPhoneNum)) {
-                // Found a matching user
-                System.out.println("Welcome back, " + user + "!");
-                username = user;
-                phoneNum = inputPhoneNum;
-                return true; // Login succeeded
-            }
-        }
-        System.out.println("No user found with that phone number. Please try again.");
-        return false; // Login failed; stay in initialMenu
     }
 
     private static void menu() {
@@ -171,6 +108,19 @@ public class App {
         System.out.println("4 - Account Settings");
         System.out.println("exit - Quit the app");
         input = scanner.nextLine();
+    }
+
+
+    // Prompt user to enter their username
+    private static String promptUsername() {
+        System.out.println("Enter your username:");
+        return scanner.nextLine();
+    }
+
+    // Prompt user to enter their phone number
+    private static String promptPhoneNum() {
+        System.out.println("Enter your phone number:");
+        return scanner.nextLine();
     }
 
     private static String accountSettings() {
@@ -193,49 +143,91 @@ public class App {
     }
 
     private static void logout() {
+        if (phoneNum != null) {
+            authServer.tell(
+                    new AuthenticationServer.LogoutUser(phoneNum, userActor),
+                    userActor
+            );
+        }
         username = null;
         phoneNum = null;
-        System.out.println("You have been logged out.");
-        // Return user to initial menu
+        System.out.println("Sent logout request to the AuthenticationServer.");
         initialMenu();
     }
 
     private static void deleteAccount() {
-        // Confirm deletion
-        System.out.println("Are you sure you want to delete your account? This action cannot be undone. (yes/no)");
+        System.out.println("Are you sure you want to delete your account? (yes/no)");
         String confirmation = scanner.nextLine();
-
         if (!confirmation.equalsIgnoreCase("yes")) {
             System.out.println("Account deletion canceled.");
             return;
         }
 
-        // Call the Database method to handle the actual deletion
-        boolean success = Database.deleteUserAccount(username, phoneNum);
-
-        if (success) {
-            System.out.println("Account successfully deleted.");
-            logout(); // Log out the user after account deletion
-        } else {
-            System.out.println("There was an error deleting your account.");
+        if (phoneNum != null) {
+            authServer.tell(
+                    new AuthenticationServer.DeleteUserAccount(phoneNum, userActor),
+                    userActor
+            );
         }
+        Database.deleteUserAccount(username, phoneNum);
+        username = null;
+        phoneNum = null;
+        System.out.println("Sent delete account request to the AuthenticationServer.");
+        initialMenu();
     }
 
-    // ======================================
-    // Helper methods for user interactions
-    // ======================================
+    private static void register() {
+        System.out.println("Register a new account.");
+        String newUsername = promptUsername();
+        String newPhoneNum = promptPhoneNum();
 
-    // Prompt user to enter their username
-    private static String promptUsername() {
-        System.out.println("Enter your username:");
-        return scanner.nextLine();
+        // 1) Check if this phone number is already in use in our local “database”
+        if (Database.getPhoneNumberIfExists(newPhoneNum) != null) {
+            System.out.println("Phone number already registered. "
+                    + "Please try logging in or use a different number.");
+            // Return to initial menu
+            initialMenu();
+            return;
+        }
+        Database.saveUser(newUsername, newPhoneNum);
+        authServer.tell(
+                new AuthenticationServer.RegisterUser(newUsername, newPhoneNum, userActor),
+                userActor
+        );
+
+        // Store them locally so we know who we intend to be
+        username = newUsername;
+        phoneNum = newPhoneNum;
+
+        // The success/failure message arrives asynchronously to userActor
     }
 
-    // Prompt user to enter their phone number
-    private static String promptPhoneNum() {
-        System.out.println("Enter your phone number:");
-        return scanner.nextLine();
+    private static void login() {
+        System.out.println("Log in to your account.");
+        String usernameInput = promptUsername();
+        System.out.println("Log in to your account.");
+        String inputPhoneNum = promptPhoneNum();
+
+        // 2) Check if this phone number exists in Database
+        if (Database.getPhoneNumberIfExists(inputPhoneNum) == null) {
+            System.out.println("Number doesn't exist. Please try registering.");
+            initialMenu();
+            return;
+        }
+
+        // We do not prompt for username; we will rely on AuthServer for the correct username
+        authServer.tell(
+                new AuthenticationServer.LoginUser(inputPhoneNum, userActor),
+                userActor
+        );
+        System.out.println("Log in successful! Welcome " + usernameInput + ".");
+
+        // For the moment, we don't know the username until the server confirms it,
+        // but let's store phoneNum so we can keep track
+        phoneNum = inputPhoneNum;
+        username = usernameInput;
     }
+
 
 
 
@@ -295,19 +287,7 @@ public class App {
         }
         return input;
     }
-/*
-    private static void menu() {
-        System.out.println();
-        System.out.println("Menu:");
-        System.out.println("1 - Messaging");
-        System.out.println("2 - Profile Settings");
-        System.out.println("3 - Call");
-        System.out.println("4 - Account Settings");
-        System.out.println("exit - Quit WhatsApp");
-        input = scanner.nextLine();
-    }
 
- */
 
     private static void showContactList() {
         Map<String, Integer> contacts = Database.getContacts(username);
@@ -378,7 +358,7 @@ public class App {
             }
         }
     }
-
+/*
     private static void profileSettings() {
         ActorSelection serverActor = system.actorSelection("akka://ServerSystem@127.0.0.1:2553/user/serverActor");
         System.out.println("1 - View Profile");
@@ -412,6 +392,8 @@ public class App {
             e.printStackTrace();
         }
     }
+
+ */
 }
 
 

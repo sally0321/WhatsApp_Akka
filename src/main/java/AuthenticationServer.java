@@ -8,8 +8,9 @@ import java.util.Map;
 
 public class AuthenticationServer extends AbstractActor {
 
-    private final Map<String, String> users = new HashMap<>(); // Map to store username and password
-    private final Map<String, ActorRef> loggedInUsers = new HashMap<>(); // Track logged in users
+    // Instead of username → password, we now store phoneNumber → username
+    private final Map<String, String> phoneToUserMap = new HashMap<>();
+    private final Map<String, ActorRef> loggedInUsers = new HashMap<>(); // Track logged-in users by phone number
 
     public static Props props() {
         return Props.create(AuthenticationServer.class, AuthenticationServer::new);
@@ -19,29 +20,37 @@ public class AuthenticationServer extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(RegisterUser.class, message -> {
-                    if (users.containsKey(message.username)) {
-                        message.userActor.tell("Username already exists. Please try logging in.", getSelf());
+                    // Check if phone number already exists
+                    if (phoneToUserMap.containsKey(message.phoneNumber)) {
+                        message.userActor.tell("Phone number already exists. Please try a different one.", getSelf());
                     } else {
-                        users.put(message.username, message.password);
+                        // Store phoneNumber → username
+                        phoneToUserMap.put(message.phoneNumber, message.username);
+                        //Database.saveUser(message.username, message.phoneNumber);
                         message.userActor.tell("Registration successful! Welcome " + message.username, getSelf());
                     }
                 })
                 .match(LoginUser.class, message -> {
-                    if (users.containsKey(message.username) && users.get(message.username).equals(message.password)) {
-                        loggedInUsers.put(message.username, message.userActor);
-                        message.userActor.tell("Login successful! Welcome back " + message.username, getSelf());
+                    // Check if phone number is known
+                    if (phoneToUserMap.containsKey(message.phoneNumber)) {
+                        String foundUsername = phoneToUserMap.get(message.phoneNumber);
+                        loggedInUsers.put(message.phoneNumber, message.userActor);
+                        message.userActor.tell("Login successful! Welcome back " + foundUsername, getSelf());
                     } else {
-                        message.userActor.tell("Invalid credentials. Please try again.", getSelf());
+                        message.userActor.tell("Invalid phone number. Please try again.", getSelf());
                     }
                 })
                 .match(LogoutUser.class, message -> {
-                    loggedInUsers.remove(message.username);
+                    loggedInUsers.remove(message.phoneNumber);
                     message.userActor.tell("You have been logged out.", getSelf());
                 })
                 .match(DeleteUserAccount.class, message -> {
-                    if (users.containsKey(message.username)) {
-                        users.remove(message.username);
-                        loggedInUsers.remove(message.username);
+                    if (phoneToUserMap.containsKey(message.phoneNumber)) {
+                        // Remove from both phoneToUserMap and loggedInUsers
+                        phoneToUserMap.remove(message.phoneNumber);
+                        //String username = phoneToUserMap.get(message.phoneNumber);
+                        //Database.deleteUserAccount(username, message.phoneNumber);
+                        loggedInUsers.remove(message.phoneNumber);
                         message.userActor.tell("Your account has been deleted.", getSelf());
                     } else {
                         message.userActor.tell("Account not found.", getSelf());
@@ -53,44 +62,42 @@ public class AuthenticationServer extends AbstractActor {
     // Message classes for authentication operations
     public static class RegisterUser implements Serializable {
         public final String username;
-        public final String password;
+        public final String phoneNumber;
         public final ActorRef userActor;
 
-        public RegisterUser(String username, String password, ActorRef userActor) {
+        public RegisterUser(String username, String phoneNumber, ActorRef userActor) {
             this.username = username;
-            this.password = password;
+            this.phoneNumber = phoneNumber;
             this.userActor = userActor;
         }
     }
 
     public static class LoginUser implements Serializable {
-        public final String username;
-        public final String password;
+        public final String phoneNumber;
         public final ActorRef userActor;
 
-        public LoginUser(String username, String password, ActorRef userActor) {
-            this.username = username;
-            this.password = password;
+        public LoginUser(String phoneNumber, ActorRef userActor) {
+            this.phoneNumber = phoneNumber;
             this.userActor = userActor;
         }
     }
 
     public static class LogoutUser implements Serializable {
-        public final String username;
+        public final String phoneNumber;
         public final ActorRef userActor;
 
-        public LogoutUser(String username, ActorRef userActor) {
-            this.username = username;
+        public LogoutUser(String phoneNumber, ActorRef userActor) {
+            this.phoneNumber = phoneNumber;
             this.userActor = userActor;
         }
     }
 
     public static class DeleteUserAccount implements Serializable {
-        public final String username;
+        public final String phoneNumber;
         public final ActorRef userActor;
 
-        public DeleteUserAccount(String username, ActorRef userActor) {
-            this.username = username;
+        public DeleteUserAccount(String phoneNumber, ActorRef userActor) {
+            this.phoneNumber = phoneNumber;
             this.userActor = userActor;
         }
     }
