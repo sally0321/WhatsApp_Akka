@@ -105,7 +105,7 @@ Selecting 1 enables View Profile, where username and bio will be displayed: <br/
 <br/>
 
 Selecting 2 enables Bio Update: <br/>
-> <img width="550" alt="image" src="https://github.com/user-attachments/assets/636ed76b-5855-43f2-aeed-4fa28907d228" />
+> <img width="650" alt="image" src="https://github.com/user-attachments/assets/636ed76b-5855-43f2-aeed-4fa28907d228" />
 <br/>
 
 The updated bio will be reflected in View Profile: <br/>
@@ -113,3 +113,5 @@ The updated bio will be reflected in View Profile: <br/>
 <br/>
 
 
+### 6.0 Remarks 
+The project does not include encryption for the user interactions. 
