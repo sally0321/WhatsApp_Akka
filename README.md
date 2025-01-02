@@ -2,7 +2,7 @@
 
 ### 1.0 Introduction 
 This project is a prototype of __Whatsapp__ _- a leading instant messaging platform_. 
-Focusing on demonstrating its operation as a __distributed system__, the project adapts a _client-server architecture_, developed with:<br/>
+Focusing on demonstrating its operation as a __distributed system__, the project adapts a __client-server architecture__, developed with:<br/>
 `AKKA Actor Model` using `Java Programming Language`.
 
 [AKKA Actor Model](https://doc.akka.io/libraries/akka-core/current/typed/actors.html) is a __concurrency framework__ based on the __Actors__' concurrency model. 
@@ -54,11 +54,20 @@ login, logout, and account deletion while ensuring phone numbers are unique and 
 <br/>
 
 #### 2.5 Database 
+The __[Database](https://github.com/sally0321/WhatsApp_Akka/blob/master/src/main/java/Database.java)__ class is a utility class that handles file operations for storing and retrieving various types of data related to users, contacts, and chat history. 
+<br/>
 
+#### 2.6 User Interaction 
+The __[User](https://github.com/sally0321/WhatsApp_Akka/blob/master/src/main/java/User.java)__ actor, on the other hand, is responsible for the user's interactions with the system, specifically handling incoming messages, notifications, and actions related to chat, calls, and profile updates. It is more focused on receiving and responding to messages rather than managing the overall application flow.
+<br/>
+
+#### 2.7 Controller Class (App)
+The __[App](https://github.com/sally0321/WhatsApp_Akka/blob/master/src/main/java/App.java)__ class is the central controller that manages the user experience and interacts with various backend server actors. It controls the flow of the application, including handling menus, user input, and calling different features.
+<br/>
 
 
 ### 3.0 Use Case Diagram  
-
+(to insert use case diagram) 
 
 
 ### 4.0 Running the Project 
@@ -77,4 +86,30 @@ __Profile Server__<br/>
 
 Once all servers are running, you may execute the application with the command:
 > `mvn exec:java -D"exec.mainClass"="App" -D"config.file"="src/main/resources/User.conf"`
+<br/>
+
+### 5.0 Output 
+#### 5.1 Authentication 
+
+#### 5.2 Send and Receive Message  
+
+#### 5.3 Make a Call 
+
+#### 5.4 Profile Settings
+Profile Settings Menu are as shown: <br/>
+> <img width="460" alt="image" src="https://github.com/user-attachments/assets/a3bfc7e1-e40a-44d5-a960-6a38fd185479" />
+<br/>
+
+Selecting 1 enables View Profile, where username and bio will be displayed: <br/>
+> <img width="460" alt="image" src="https://github.com/user-attachments/assets/890bce1c-9e9b-4802-a34e-362635c39fb8" />
+<br/>
+
+Selecting 2 enables Bio Update: <br/>
+> <img width="550" alt="image" src="https://github.com/user-attachments/assets/636ed76b-5855-43f2-aeed-4fa28907d228" />
+<br/>
+
+The updated bio will be reflected in View Profile: <br/>
+> <img width="460" alt="image" src="https://github.com/user-attachments/assets/84d7b22d-2d93-47de-abc1-187b43f3c6ba" />
+<br/>
+
 
