@@ -66,10 +66,11 @@ The __[App](https://github.com/sally0321/WhatsApp_Akka/blob/master/src/main/java
 <br/>
 
 
+<br/>
 ### 3.0 Use Case Diagram  
 (to insert use case diagram) 
 
-
+<br/>
 ### 4.0 Running the Project 
 Before running the project, do a maven compilation: <br/> 
 > `mvn clean compile`
@@ -88,6 +89,7 @@ Once all servers are running, you may execute the application with the command:
 > `mvn exec:java -D"exec.mainClass"="App" -D"config.file"="src/main/resources/User.conf"`
 <br/>
 
+<br/>
 ### 5.0 Output 
 #### 5.1 Authentication 
 
@@ -112,6 +114,6 @@ The updated bio will be reflected in View Profile: <br/>
 > <img width="460" alt="image" src="https://github.com/user-attachments/assets/84d7b22d-2d93-47de-abc1-187b43f3c6ba" />
 <br/>
 
-
+<br/>
 ### 6.0 Remarks 
 The project does not include encryption for the user interactions. 
