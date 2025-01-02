@@ -54,23 +54,25 @@ login, logout, and account deletion while ensuring phone numbers are unique and 
 <br/>
 
 #### 2.5 Database 
-The __[Database](https://github.com/sally0321/WhatsApp_Akka/blob/master/src/main/java/Database.java)__ class is a utility class that handles file operations for storing and retrieving various types of data related to users, contacts, and chat history. 
+The __[Database](https://github.com/sally0321/WhatsApp_Akka/blob/master/src/main/java/Database.java)__ class is a utility class that handles file operations for storing and retrieving various types of data related to users, contacts, and chat history.<br/> 
 <br/>
 
 #### 2.6 User Interaction 
-The __[User](https://github.com/sally0321/WhatsApp_Akka/blob/master/src/main/java/User.java)__ actor, on the other hand, is responsible for the user's interactions with the system, specifically handling incoming messages, notifications, and actions related to chat, calls, and profile updates. It is more focused on receiving and responding to messages rather than managing the overall application flow.
+The __[User](https://github.com/sally0321/WhatsApp_Akka/blob/master/src/main/java/User.java)__ actor, on the other hand, is responsible for the user's interactions with the system, specifically handling incoming messages, notifications, and actions related to chat, calls, and profile updates. It is more focused on receiving and responding to messages rather than managing the overall application flow.<br/>
 <br/>
 
 #### 2.7 Controller Class (App)
-The __[App](https://github.com/sally0321/WhatsApp_Akka/blob/master/src/main/java/App.java)__ class is the central controller that manages the user experience and interacts with various backend server actors. It controls the flow of the application, including handling menus, user input, and calling different features.
+The __[App](https://github.com/sally0321/WhatsApp_Akka/blob/master/src/main/java/App.java)__ class is the central controller that manages the user experience and interacts with various backend server actors. It controls the flow of the application, including handling menus, user input, and calling different features.<br/>
 <br/>
 
 
 <br/>
+
 ### 3.0 Use Case Diagram  
 (to insert use case diagram) 
 
 <br/>
+
 ### 4.0 Running the Project 
 Before running the project, do a maven compilation: <br/> 
 > `mvn clean compile`
@@ -90,6 +92,7 @@ Once all servers are running, you may execute the application with the command:
 <br/>
 
 <br/>
+
 ### 5.0 Output 
 #### 5.1 Authentication 
 
@@ -115,5 +118,6 @@ The updated bio will be reflected in View Profile: <br/>
 <br/>
 
 <br/>
+
 ### 6.0 Remarks 
 The project does not include encryption for the user interactions. 
