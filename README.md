@@ -2,7 +2,7 @@
 
 ### 1.0 Introduction 
 This project is a prototype of __Whatsapp__ _- a leading instant messaging platform_. 
-Focusing on demonstrating its operation as a __distributed system__, the project adapts a __client-server architecture__, developed with:<br/>
+Focusing on demonstrating its operation as a __distributed system__, the project adapts a __microservices client-server architecture__, developed with:<br/>
 `AKKA Actor Model` using `Java Programming Language`.
 
 [AKKA Actor Model](https://doc.akka.io/libraries/akka-core/current/typed/actors.html) is a __concurrency framework__ based on the __Actors__' concurrency model. 
@@ -69,7 +69,7 @@ The __[App](https://github.com/sally0321/WhatsApp_Akka/blob/master/src/main/java
 <br/>
 
 ### 3.0 Use Case Diagram  
-(to insert use case diagram) 
+![image](https://github.com/user-attachments/assets/0640973d-8587-4cb5-9828-0eb1598cef24)
 
 <br/>
 
