@@ -104,15 +104,15 @@ Registering an Account (phone number MUST be unique): <br/>
 <br/>
 
 Logging into an Account (phone number should be registered already): <br/>
-> ![image](https://github.com/user-attachments/assets/49304955-a503-424b-a167-38365cd355e7)
+> <img width="823" alt="image" src="https://github.com/user-attachments/assets/a03c6446-c482-4235-9193-9913c3443469" />
 <br/>
 
 Logging Out of Account through Account Settings: <br/>
-> ![image](https://github.com/user-attachments/assets/568faf89-d8fd-497e-8b73-3858a1187c6b)
+> <img width="767" alt="image" src="https://github.com/user-attachments/assets/fb5ade3b-d6a0-4af9-bde7-1385408fc1af" />
 <br/>
 
 Deleting an Account through Account Settings: <br/> 
-> ![image](https://github.com/user-attachments/assets/2ddb656c-d9fd-445f-837f-4e9e8d0b98c0)
+> <img width="785" alt="image" src="https://github.com/user-attachments/assets/9f9b51e5-1d39-420d-ade6-72b26447a20a" />
 <br/>
 
 User List in Database (all changes will be reflected): <br/>
@@ -122,11 +122,11 @@ User List in Database (all changes will be reflected): <br/>
 
 #### 5.2 Chat Services 
 User Contact List and Menu: <br/> 
-> ![image](https://github.com/user-attachments/assets/791a7696-aa74-432a-aca3-76e408c5c37b)
+> <img width="748" alt="image" src="https://github.com/user-attachments/assets/fba05b37-0c9e-4fda-a155-c244fd8e1c0f" />
 <br/> 
 
 Adding User Contact: <br/> 
-> ![image](https://github.com/user-attachments/assets/7559c93b-04df-480e-89fb-b56fd3a03e83)
+> <img width="814" alt="image" src="https://github.com/user-attachments/assets/bd12c83c-e334-459e-b5c5-5518e5e66a15" />
 <br/> 
 
 Starting a Chat: <br/> 
@@ -134,29 +134,29 @@ Starting a Chat: <br/>
 <br/>
 
 Chat History between users: <br/> 
-> ![image](https://github.com/user-attachments/assets/3b34f10c-e101-4815-bb2c-c5948892dcb0)
+> <img width="824" alt="image" src="https://github.com/user-attachments/assets/0302145d-bdd6-4146-b07f-b597fa51d214" />
 <br/>
 
 Sending Message: <br/> 
-> ![image](https://github.com/user-attachments/assets/53989c71-359f-4ac4-be5f-59b96ea1304e)
+> <img width="819" alt="image" src="https://github.com/user-attachments/assets/6b5d02be-b477-4acb-a407-65772ecc2b65" />
 <br/>
 
 Message Status: <br/> 
-> ![image](https://github.com/user-attachments/assets/4d499584-58a8-4cc9-80ea-33da87752037)
+> <img width="782" alt="image" src="https://github.com/user-attachments/assets/2364cb0c-2d12-46ac-b8c1-c0ab52998968" />
 <br/>
 <br/> 
 
 #### 5.3 Make a Call 
 Call Initiation: <br/> 
-> <img width="324" alt="picture13" src="https://github.com/user-attachments/assets/545781e6-3fc8-4fdf-89c5-bb3c108fa7fe" />
+> <img width="460" alt="picture13" src="https://github.com/user-attachments/assets/545781e6-3fc8-4fdf-89c5-bb3c108fa7fe" />
 <br/>
 
 Call Acceptance Options (Receiver): <br/> 
-> <img width="324" alt="picture13" src="https://github.com/user-attachments/assets/6e7cbc58-fa00-4a40-9a6c-e4500e7fbb8e" />
+> <img width="460" alt="picture13" src="https://github.com/user-attachments/assets/6e7cbc58-fa00-4a40-9a6c-e4500e7fbb8e" />
 <br/>
 
 Call Accepted (Caller): <br/> 
-> <img width="324" alt="picture13" src="https://github.com/user-attachments/assets/a34e08cc-26a3-471f-99a4-84c9040eddde" />
+> <img width="460" alt="picture13" src="https://github.com/user-attachments/assets/a34e08cc-26a3-471f-99a4-84c9040eddde" />
 <br/>
 
 Call Rejected (Caller): <br/>
@@ -164,7 +164,8 @@ Call Rejected (Caller): <br/>
 <br/>
 
 Updates on Call Server: <br/>
-> ![image](https://github.com/user-attachments/assets/d5f20f6a-087b-4236-a66e-aa07d3547b25)
+> <img width="821" alt="image" src="https://github.com/user-attachments/assets/5e7994ca-4161-4922-92bf-8097dc685afe" />
+
 <br/>
 <br/>
 
