@@ -171,19 +171,19 @@ Updates on Call Server: <br/>
 
 #### 5.4 Profile Settings
 Profile Settings Menu: <br/>
-> <img width="500" alt="image" src="https://github.com/user-attachments/assets/a3bfc7e1-e40a-44d5-a960-6a38fd185479" />
+> <img width="600" alt="image" src="https://github.com/user-attachments/assets/a3bfc7e1-e40a-44d5-a960-6a38fd185479" />
 <br/>
 
 View Profile: <br/>
-> <img width="500" alt="image" src="https://github.com/user-attachments/assets/890bce1c-9e9b-4802-a34e-362635c39fb8" />
+> <img width="600" alt="image" src="https://github.com/user-attachments/assets/890bce1c-9e9b-4802-a34e-362635c39fb8" />
 <br/>
 
 Update Bio: <br/>
-> <img width="800" alt="image" src="https://github.com/user-attachments/assets/636ed76b-5855-43f2-aeed-4fa28907d228" />
+> <img width="600" alt="image" src="https://github.com/user-attachments/assets/516b7758-792f-40e1-9dff-53a64886a39c" />
 <br/>
 
 Updated Profile: <br/>
-> <img width="500" alt="image" src="https://github.com/user-attachments/assets/84d7b22d-2d93-47de-abc1-187b43f3c6ba" />
+> <img width="600" alt="image" src="https://github.com/user-attachments/assets/84d7b22d-2d93-47de-abc1-187b43f3c6ba" />
 <br/>
 <br/>
 
