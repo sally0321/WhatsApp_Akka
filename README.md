@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/66d7bd16-9c62-457f-800a-9f52ca89dd12)## Whatsapp Application: A Prototype
+## Whatsapp Application: A Prototype
 
 ### 1.0 Introduction 
 This project is a prototype of __Whatsapp__ _- a leading instant messaging platform_. 
