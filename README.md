@@ -1,4 +1,4 @@
-## Whatsapp Application: A Prototype
+![image](https://github.com/user-attachments/assets/66d7bd16-9c62-457f-800a-9f52ca89dd12)## Whatsapp Application: A Prototype
 
 ### 1.0 Introduction 
 This project is a prototype of __Whatsapp__ _- a leading instant messaging platform_. 
@@ -95,28 +95,95 @@ Once all servers are running, you may execute the application with the command:
 
 ### 5.0 Output 
 #### 5.1 Authentication 
+Sign-in Options are as shown:<br/>
+> ![Picture11](https://github.com/user-attachments/assets/8d557fcf-7523-4f16-ae83-5c4ac507e0db)
+<br/>
 
-#### 5.2 Send and Receive Message  
+Registering an Account (phone number MUST be unique): <br/>
+> ![Picture10](https://github.com/user-attachments/assets/b6ab9ff7-e23d-451f-a199-b48fd8eded56)
+<br/>
+
+Logging into an Account (phone number should be registered already): <br/>
+> ![image](https://github.com/user-attachments/assets/49304955-a503-424b-a167-38365cd355e7)
+<br/>
+
+Logging Out of Account through Account Settings: <br/>
+> ![image](https://github.com/user-attachments/assets/568faf89-d8fd-497e-8b73-3858a1187c6b)
+<br/>
+
+Deleting an Account through Account Settings: <br/> 
+> ![image](https://github.com/user-attachments/assets/2ddb656c-d9fd-445f-837f-4e9e8d0b98c0)
+<br/>
+
+User List in Database (all changes will be reflected): <br/>
+> ![image](https://github.com/user-attachments/assets/44b1a98b-c633-40b6-afda-f1cd4658a549)
+<br/>
+<br/>
+
+#### 5.2 Chat Services 
+User Contact List and Menu: <br/> 
+> ![image](https://github.com/user-attachments/assets/791a7696-aa74-432a-aca3-76e408c5c37b)
+<br/> 
+
+Adding User Contact: <br/> 
+> ![image](https://github.com/user-attachments/assets/7559c93b-04df-480e-89fb-b56fd3a03e83)
+<br/> 
+
+Starting a Chat: <br/> 
+> ![picture12](https://github.com/user-attachments/assets/d812dc66-3abb-4652-ad1b-974a75794e7f)
+<br/>
+
+Chat History between users: <br/> 
+> ![image](https://github.com/user-attachments/assets/3b34f10c-e101-4815-bb2c-c5948892dcb0)
+<br/>
+
+Sending Message: <br/> 
+> ![image](https://github.com/user-attachments/assets/53989c71-359f-4ac4-be5f-59b96ea1304e)
+<br/>
+
+Message Status: <br/> 
+> ![image](https://github.com/user-attachments/assets/4d499584-58a8-4cc9-80ea-33da87752037)
+<br/>
+<br/> 
 
 #### 5.3 Make a Call 
+Call Initiation: <br/> 
+> <img width="324" alt="picture13" src="https://github.com/user-attachments/assets/545781e6-3fc8-4fdf-89c5-bb3c108fa7fe" />
+<br/>
+
+Call Acceptance Options (Receiver): <br/> 
+> <img width="324" alt="picture13" src="https://github.com/user-attachments/assets/6e7cbc58-fa00-4a40-9a6c-e4500e7fbb8e" />
+<br/>
+
+Call Accepted (Caller): <br/> 
+> <img width="324" alt="picture13" src="https://github.com/user-attachments/assets/a34e08cc-26a3-471f-99a4-84c9040eddde" />
+<br/>
+
+Call Rejected (Caller): <br/>
+> ![image](https://github.com/user-attachments/assets/980ac9ad-bee4-4908-8339-67f49768afd1)
+<br/>
+
+Updates on Call Server: <br/>
+> ![image](https://github.com/user-attachments/assets/d5f20f6a-087b-4236-a66e-aa07d3547b25)
+<br/>
+<br/>
 
 #### 5.4 Profile Settings
-Profile Settings Menu are as shown: <br/>
+Profile Settings Menu: <br/>
 > <img width="460" alt="image" src="https://github.com/user-attachments/assets/a3bfc7e1-e40a-44d5-a960-6a38fd185479" />
 <br/>
 
-Selecting 1 enables View Profile, where username and bio will be displayed: <br/>
+View Profile: <br/>
 > <img width="460" alt="image" src="https://github.com/user-attachments/assets/890bce1c-9e9b-4802-a34e-362635c39fb8" />
 <br/>
 
-Selecting 2 enables Bio Update: <br/>
+Update Bio: <br/>
 > <img width="650" alt="image" src="https://github.com/user-attachments/assets/636ed76b-5855-43f2-aeed-4fa28907d228" />
 <br/>
 
-The updated bio will be reflected in View Profile: <br/>
+Updated Profile: <br/>
 > <img width="460" alt="image" src="https://github.com/user-attachments/assets/84d7b22d-2d93-47de-abc1-187b43f3c6ba" />
 <br/>
-
 <br/>
 
 ### 6.0 Remarks 
